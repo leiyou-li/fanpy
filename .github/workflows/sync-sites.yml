@@ -97,10 +97,10 @@ try:
     with open('moyun.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     sites_count = len(data.get('sites', []))
-    print(f'sites_count={sites_count}')
+    print(sites_count)
 except:
-    print('sites_count=0')
-" | grep sites_count | cut -d'=' -f2)
+    print(0)
+")
                 echo "sites_count=$SITES_COUNT" >> $GITHUB_OUTPUT
               fi
             else
