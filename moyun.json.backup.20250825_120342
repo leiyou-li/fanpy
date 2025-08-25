@@ -1,0 +1,103 @@
+{
+  "sites": [
+    
+  ],
+  "parses": [
+    {
+      "name": "解析1",
+      "url": "http://156.225.30.142:1001/api/index?parsesId=8&appid=10000&videoUrl=",
+      "type": 1,
+      "header": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    },
+    {
+      "name": "解析2",
+      "url": "http://appym.lyyytv.cn/api/index?parsesId=1&appid=10000&videoUrl=",
+      "type": 1,
+      "header": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    },
+    {
+      "name": "解析3",
+      "url": "http://121.62.21.61:8011/api/?key=TUV1b5pR3OPlJRCFaA&url=",
+      "type": 0,
+      "header": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    },
+    {
+      "name": "巧计2",
+      "url": "https://zy.qiaoji8.com/neibu.php?url=",
+      "type": 1,
+      "header": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    },
+    {
+      "name": "虾米1",
+      "url": "https://jx.xmflv.com/?url=",
+      "type": 0,
+      "header": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    },
+    {
+      "name": "虾米2",
+      "url": "https://jx.xmflv.cc/?url=",
+      "type": 0,
+      "header": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    }
+  ],
+  "flags": [
+    "imgo",
+    "youku",
+    "qq",
+    "qq 预告及花絮",
+    "iqiyi",
+    "qiyi",
+    "fun",
+    "letv",
+    "leshi",
+    "sohu",
+    "tudou",
+    "xigua",
+    "cntv",
+    "1905",
+    "pptv",
+    "mgtv",
+    "wasu",
+    "bilibili",
+    "优酷",
+    "芒果",
+    "芒果TV",
+    "腾讯",
+    "腾讯视频",
+    "奇艺",
+    "爱奇艺",
+    "renrenmi"
+  ],
+  "lives": [
+    {
+      "name": "IPTV",
+      "type": 0,
+      "url": "https://raw.dgithub.xyz/jadehh/iptv-api/master/output/IPTV.m3u",
+      "playerType": 2,
+      "ua": "okhttp/3.12.13",
+      "epg": "https://epg.mxdyeah.top/api/diyp/?ch={name}&date={date}",
+      "logo": "https://live.mxdyeah.top/logo/{name}.png"
+    },
+    {
+      "name": "广播",
+      "type": 0,
+      "url": "https://mirror.ghproxy.com/https://raw.githubusercontent.com/YueChan/Live/main/Radio.m3u",
+      "playerType": 1,
+      "ua": "okhttp/3.12.13",
+      "epg": "https://epg.mxdyeah.top/api/diyp/?ch={name}&date={date}",
+      "logo": "https://live.mxdyeah.top/logo/{name}.png"
+    }
+  ]
+}

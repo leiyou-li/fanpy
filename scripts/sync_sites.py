@@ -57,6 +57,17 @@ def validate_site_item(site):
     return True, None
 
 
+def transform_api_path(site):
+    """转换API路径，将./app/和./web/转换为./plugin/app/和./plugin/web/"""
+    if 'api' in site:
+        api_path = site['api']
+        if api_path.startswith('./app/'):
+            site['api'] = api_path.replace('./app/', './plugin/app/')
+        elif api_path.startswith('./web/'):
+            site['api'] = api_path.replace('./web/', './plugin/web/')
+    return site
+
+
 def sync_sites(spider_file, moyun_file, dry_run=False):
     """
     同步sites配置
@@ -95,7 +106,9 @@ def sync_sites(spider_file, moyun_file, dry_run=False):
     for i, site in enumerate(spider_sites):
         is_valid, error_msg = validate_site_item(site)
         if is_valid:
-            valid_sites.append(site)
+            # 转换API路径
+            transformed_site = transform_api_path(site.copy())
+            valid_sites.append(transformed_site)
         else:
             print(f"⚠️  跳过无效配置项 [{i+1}]: {error_msg} - {site.get('name', 'Unknown')}")
             invalid_count += 1
