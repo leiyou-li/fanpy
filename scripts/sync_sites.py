@@ -159,16 +159,20 @@ def main():
     
     # 获取文件路径
     script_dir = Path(__file__).parent
-    spider_file = script_dir / 'spider.json'
-    moyun_file = script_dir / 'moyun.json'
     
-    # 如果在GitHub Actions环境中，使用工作区路径
+    # 优先使用GitHub Actions工作区路径，否则使用脚本父目录
     if 'GITHUB_WORKSPACE' in os.environ:
         workspace = Path(os.environ['GITHUB_WORKSPACE'])
         spider_file = workspace / 'spider.json'
         moyun_file = workspace / 'moyun.json'
+        working_dir = workspace
+    else:
+        # 本地运行时，文件在脚本的父目录（项目根目录）
+        working_dir = script_dir.parent
+        spider_file = working_dir / 'spider.json'
+        moyun_file = working_dir / 'moyun.json'
     
-    print(f"🔍 工作目录: {script_dir}")
+    print(f"🔍 工作目录: {working_dir}")
     print(f"📁 Spider文件: {spider_file}")
     print(f"📁 Moyun文件: {moyun_file}")
     
