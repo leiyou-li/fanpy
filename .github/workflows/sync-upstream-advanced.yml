@@ -1,0 +1,278 @@
+name: Advanced Upstream Sync
+
+on:
+  # 每天北京时间08:00运行（UTC 00:00）
+  schedule:
+    - cron: '0 0 * * *'
+  # 每周一额外运行一次作为备份
+  schedule:
+    - cron: '0 2 * * 1'
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: '强制同步（即使没有检测到变更）'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "upstream-sync[bot]"
+          git config user.email "upstream-sync[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          # 删除可能存在的upstream remote
+          git remote remove upstream 2>/dev/null || true
+          # 添加upstream remote
+          git remote add upstream https://github.com/engd66/PyramidStore.git
+          echo "已添加上游仓库remote"
+
+      - name: Fetch all remotes
+        run: |
+          echo "正在获取所有remote的最新信息..."
+          git fetch --all --prune
+          echo "获取完成"
+
+      - name: Get commit information
+        id: commit_info
+        run: |
+          LOCAL_COMMIT=$(git rev-parse HEAD)
+          UPSTREAM_COMMIT=$(git rev-parse upstream/main)
+          LOCAL_SHORT=$(git rev-parse --short HEAD)
+          UPSTREAM_SHORT=$(git rev-parse --short upstream/main)
+          
+          # 获取上游最新提交信息
+          UPSTREAM_MESSAGE=$(git log upstream/main -1 --pretty=format:"%s")
+          UPSTREAM_AUTHOR=$(git log upstream/main -1 --pretty=format:"%an")
+          UPSTREAM_DATE=$(git log upstream/main -1 --pretty=format:"%cr")
+          
+          echo "local_commit=$LOCAL_COMMIT" >> $GITHUB_OUTPUT
+          echo "upstream_commit=$UPSTREAM_COMMIT" >> $GITHUB_OUTPUT
+          echo "local_short=$LOCAL_SHORT" >> $GITHUB_OUTPUT
+          echo "upstream_short=$UPSTREAM_SHORT" >> $GITHUB_OUTPUT
+          echo "upstream_message=$UPSTREAM_MESSAGE" >> $GITHUB_OUTPUT
+          echo "upstream_author=$UPSTREAM_AUTHOR" >> $GITHUB_OUTPUT
+          echo "upstream_date=$UPSTREAM_DATE" >> $GITHUB_OUTPUT
+          
+          # 检查是否有更新
+          if [ "$LOCAL_COMMIT" != "$UPSTREAM_COMMIT" ] || [ "${{ github.event.inputs.force_sync }}" == "true" ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            # 计算新提交数量
+            COMMIT_COUNT=$(git rev-list --count HEAD..upstream/main)
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display sync information
+        run: |
+          echo "=== 同步信息 ==="
+          echo "本地最新提交: ${{ steps.commit_info.outputs.local_short }}"
+          echo "上游最新提交: ${{ steps.commit_info.outputs.upstream_short }}"
+          echo "上游最新变更: ${{ steps.commit_info.outputs.upstream_message }}"
+          echo "变更作者: ${{ steps.commit_info.outputs.upstream_author }}"
+          echo "变更时间: ${{ steps.commit_info.outputs.upstream_date }}"
+          
+          if [ "${{ steps.commit_info.outputs.has_updates }}" == "true" ]; then
+            echo "状态: 🔄 需要同步 (${{ steps.commit_info.outputs.commit_count }} 个新提交)"
+          else
+            echo "状态: ✅ 已是最新"
+          fi
+
+      - name: Backup current branch
+        if: steps.commit_info.outputs.has_updates == 'true'
+        run: |
+          # 创建备份分支
+          BACKUP_BRANCH="backup-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BACKUP_BRANCH"
+          git push origin "$BACKUP_BRANCH"
+          git checkout main
+          echo "已创建备份分支: $BACKUP_BRANCH"
+
+      - name: Sync with upstream
+        if: steps.commit_info.outputs.has_updates == 'true'
+        id: sync_result
+        run: |
+          echo "开始同步上游变更..."
+          
+          # 尝试合并
+          if git merge upstream/main --no-edit; then
+            echo "sync_method=merge" >> $GITHUB_OUTPUT
+            echo "sync_success=true" >> $GITHUB_OUTPUT
+            echo "✅ 成功合并上游变更"
+          else
+            echo "合并发生冲突，尝试重置到上游版本..."
+            git merge --abort
+            
+            # 保存本地特有的文件（如果有的话）
+            LOCAL_FILES=$(git diff --name-only upstream/main...HEAD | grep -v "^\.github/" | head -5)
+            if [ ! -z "$LOCAL_FILES" ]; then
+              echo "检测到本地特有文件，将在重置后恢复:"
+              echo "$LOCAL_FILES"
+            fi
+            
+            # 重置到上游版本
+            git reset --hard upstream/main
+            echo "sync_method=reset" >> $GITHUB_OUTPUT
+            echo "sync_success=true" >> $GITHUB_OUTPUT
+            echo "✅ 已重置到上游最新版本"
+          fi
+
+      - name: Setup Python for sync script
+        if: steps.commit_info.outputs.has_updates == 'true' && steps.sync_result.outputs.sync_success == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Sync sites configuration
+        if: steps.commit_info.outputs.has_updates == 'true' && steps.sync_result.outputs.sync_success == 'true'
+        id: sync_sites
+        run: |
+          echo "🔄 开始同步sites配置..."
+          
+          # 检查文件是否存在
+          if [ ! -f "spider.json" ]; then
+            echo "⚠️  spider.json 不存在，跳过sites同步"
+            echo "sites_sync_needed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          if [ ! -f "moyun.json" ]; then
+            echo "⚠️  moyun.json 不存在，跳过sites同步"
+            echo "sites_sync_needed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # 创建脚本目录
+          mkdir -p scripts
+          
+          # 运行同步脚本
+          if python scripts/sync_sites.py; then
+            echo "sites_sync_success=true" >> $GITHUB_OUTPUT
+            echo "sites_sync_needed=true" >> $GITHUB_OUTPUT
+            echo "✅ Sites配置同步成功"
+            
+            # 检查是否有变更需要提交
+            if git diff --quiet moyun.json; then
+              echo "sites_changes=false" >> $GITHUB_OUTPUT
+              echo "ℹ️  moyun.json 无需更新"
+            else
+              echo "sites_changes=true" >> $GITHUB_OUTPUT
+              echo "📝 moyun.json 已更新"
+              
+              # 提交变更
+              git add moyun.json
+              git commit -m "🔄 Auto-sync sites from spider.json
+              
+              - 同步时间: $(date -u)
+              - 同步来源: spider.json
+              - 自动同步: GitHub Actions"
+            fi
+          else
+            echo "sites_sync_success=false" >> $GITHUB_OUTPUT
+            echo "sites_sync_needed=true" >> $GITHUB_OUTPUT
+            echo "❌ Sites配置同步失败"
+          fi
+
+      - name: Push changes to origin
+        if: steps.commit_info.outputs.has_updates == 'true' && steps.sync_result.outputs.sync_success == 'true'
+        run: |
+          echo "推送变更到origin..."
+          git push origin main --force-with-lease
+          echo "✅ 成功推送到远程仓库"
+
+      - name: Create issue on sync failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 上游同步失败 - ${new Date().toISOString().split('T')[0]}`;
+            const body = `
+            ## 同步失败报告
+            
+            **时间**: ${new Date().toLocaleString('zh-CN', {timeZone: 'Asia/Shanghai'})}
+            **工作流**: ${context.workflow}
+            **运行ID**: ${context.runId}
+            
+            **上游仓库**: https://github.com/engd66/PyramidStore
+            **本地提交**: ${{ steps.commit_info.outputs.local_short }}
+            **上游提交**: ${{ steps.commit_info.outputs.upstream_short }}
+            
+            请检查工作流日志以了解失败原因：
+            ${context.payload.repository.html_url}/actions/runs/${context.runId}
+            
+            ---
+            *此issue由自动同步工作流创建*
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['sync-failure', 'automated']
+            });
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "# 🔄 上游仓库同步报告" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**上游仓库**: [PyramidStore](https://github.com/engd66/PyramidStore)" >> $GITHUB_STEP_SUMMARY
+          echo "**同步时间**: $(date -u '+%Y-%m-%d %H:%M:%S') UTC ($(date '+%Y-%m-%d %H:%M:%S') 北京时间)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.commit_info.outputs.has_updates }}" == "true" ]; then
+            if [ "${{ steps.sync_result.outputs.sync_success }}" == "true" ]; then
+              echo "## ✅ 同步成功" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "- **同步方式**: ${{ steps.sync_result.outputs.sync_method }}" >> $GITHUB_STEP_SUMMARY
+              echo "- **新提交数量**: ${{ steps.commit_info.outputs.commit_count }}" >> $GITHUB_STEP_SUMMARY
+              echo "- **最新变更**: ${{ steps.commit_info.outputs.upstream_message }}" >> $GITHUB_STEP_SUMMARY
+              echo "- **变更作者**: ${{ steps.commit_info.outputs.upstream_author }}" >> $GITHUB_STEP_SUMMARY
+              
+              # Sites同步信息
+              if [ "${{ steps.sync_sites.outputs.sites_sync_needed }}" == "true" ]; then
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "### 🔧 Sites配置同步" >> $GITHUB_STEP_SUMMARY
+                if [ "${{ steps.sync_sites.outputs.sites_sync_success }}" == "true" ]; then
+                  if [ "${{ steps.sync_sites.outputs.sites_changes }}" == "true" ]; then
+                    echo "- ✅ sites配置已更新: spider.json → moyun.json" >> $GITHUB_STEP_SUMMARY
+                  else
+                    echo "- ℹ️ sites配置已是最新" >> $GITHUB_STEP_SUMMARY
+                  fi
+                else
+                  echo "- ❌ sites配置同步失败" >> $GITHUB_STEP_SUMMARY
+                fi
+              fi
+            else
+              echo "## ❌ 同步失败" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "请查看工作流日志了解详细信息。" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "## ℹ️ 无需同步" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "当前已是最新版本，无需同步。" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**本地提交**: \`${{ steps.commit_info.outputs.local_short }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**上游提交**: \`${{ steps.commit_info.outputs.upstream_short }}\`" >> $GITHUB_STEP_SUMMARY

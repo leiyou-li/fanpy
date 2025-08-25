@@ -1,0 +1,82 @@
+name: Sync Upstream Repository
+
+on:
+  # 每天UTC时间00:00运行（北京时间08:00）
+  schedule:
+    - cron: '0 0 * * *'
+  # 也允许手动触发
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # 获取完整的git历史
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/engd66/PyramidStore.git
+          git remote -v
+
+      - name: Fetch upstream changes
+        run: |
+          git fetch upstream
+          git fetch origin
+
+      - name: Check for updates
+        id: check_updates
+        run: |
+          # 检查上游是否有新的提交
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse upstream/main)
+          
+          echo "Local commit: $LOCAL"
+          echo "Upstream commit: $REMOTE"
+          
+          if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "updates_available=true" >> $GITHUB_OUTPUT
+            echo "找到上游更新"
+          else
+            echo "updates_available=false" >> $GITHUB_OUTPUT
+            echo "没有新的更新"
+          fi
+
+      - name: Merge upstream changes
+        if: steps.check_updates.outputs.updates_available == 'true'
+        run: |
+          # 尝试合并上游变更
+          if git merge upstream/main --no-edit; then
+            echo "成功合并上游变更"
+          else
+            echo "合并冲突，尝试重置到上游版本"
+            git merge --abort
+            git reset --hard upstream/main
+            echo "已重置到上游最新版本"
+          fi
+
+      - name: Push changes
+        if: steps.check_updates.outputs.updates_available == 'true'
+        run: |
+          git push origin main --force-with-lease
+
+      - name: Create summary
+        if: always()
+        run: |
+          if [ "${{ steps.check_updates.outputs.updates_available }}" == "true" ]; then
+            echo "✅ 成功同步上游仓库更新" >> $GITHUB_STEP_SUMMARY
+            echo "上游仓库: https://github.com/engd66/PyramidStore" >> $GITHUB_STEP_SUMMARY
+            echo "同步时间: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ 没有新的更新需要同步" >> $GITHUB_STEP_SUMMARY
+            echo "检查时间: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          fi
