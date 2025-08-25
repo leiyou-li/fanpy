@@ -1,25 +1,20 @@
 name: Sync Sites Configuration
 
 on:
-  # 可以手动触发
   workflow_dispatch:
     inputs:
       dry_run:
-        description: '预览模式（不实际修改文件）'
+        description: 'Preview mode (do not modify files)'
         required: false
         default: 'false'
         type: boolean
-  
-  # 当spider.json文件发生变化时自动触发
   push:
     paths:
       - 'spider.json'
     branches:
       - main
-  
-  # 每天额外运行一次确保同步
   schedule:
-    - cron: '30 0 * * *'  # 北京时间08:30 (UTC 00:30)
+    - cron: '30 0 * * *'
 
 jobs:
   sync-sites:
@@ -50,14 +45,11 @@ jobs:
             echo "spider_exists=true" >> $GITHUB_OUTPUT
           else
             echo "spider_exists=false" >> $GITHUB_OUTPUT
-            echo "⚠️ spider.json 不存在"
           fi
-          
           if [ -f "moyun.json" ]; then
             echo "moyun_exists=true" >> $GITHUB_OUTPUT
           else
             echo "moyun_exists=false" >> $GITHUB_OUTPUT
-            echo "⚠️ moyun.json 不存在"
           fi
 
       - name: Create scripts directory
@@ -68,36 +60,25 @@ jobs:
         if: steps.check_files.outputs.spider_exists == 'true' && steps.check_files.outputs.moyun_exists == 'true'
         id: sync_sites
         run: |
-          echo "🔄 开始同步sites配置..."
-          
           DRY_RUN_FLAG=""
           if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
             DRY_RUN_FLAG="--dry-run"
-            echo "🔍 运行在预览模式"
           fi
           
-          # 运行同步脚本
           if python scripts/sync_sites.py $DRY_RUN_FLAG; then
             echo "sync_success=true" >> $GITHUB_OUTPUT
-            echo "✅ Sites配置处理成功"
             
-            # 检查是否有变更需要提交（非预览模式）
             if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
               if git diff --quiet moyun.json; then
                 echo "has_changes=false" >> $GITHUB_OUTPUT
-                echo "ℹ️ moyun.json 无需更新"
               else
                 echo "has_changes=true" >> $GITHUB_OUTPUT
-                echo "📝 moyun.json 已更新"
-                
-                # 获取统计信息
                 SITES_COUNT=$(python -c "
 import json
 try:
     with open('moyun.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
-    sites_count = len(data.get('sites', []))
-    print(sites_count)
+    print(len(data.get('sites', [])))
 except:
     print(0)
 ")
@@ -108,71 +89,58 @@ except:
             fi
           else
             echo "sync_success=false" >> $GITHUB_OUTPUT
-            echo "❌ Sites配置处理失败"
           fi
 
       - name: Commit and push changes
         if: steps.sync_sites.outputs.sync_success == 'true' && steps.sync_sites.outputs.has_changes == 'true'
         run: |
-          echo "📝 提交配置变更..."
-          
           git add moyun.json
-          
-          # 创建提交信息
-          git commit -m "Sync sites from spider.json"
+          git commit -m "Update sites configuration"
           git push origin main
-          
-          echo "✅ 配置变更已提交并推送"
 
       - name: Generate summary
         if: always()
         run: |
-          echo "# 🔧 Sites配置同步报告" >> $GITHUB_STEP_SUMMARY
+          echo "# Sites Configuration Sync Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**同步时间**: $(date -u '+%Y-%m-%d %H:%M:%S') UTC ($(date '+%Y-%m-%d %H:%M:%S') 北京时间)" >> $GITHUB_STEP_SUMMARY
-          echo "**触发方式**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Sync Time**: $(date -u '+%Y-%m-%d %H:%M:%S') UTC" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
-            echo "**运行模式**: 🔍 预览模式（未修改文件）" >> $GITHUB_STEP_SUMMARY
+            echo "**Mode**: Preview (no changes)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "**运行模式**: ✅ 正常模式" >> $GITHUB_STEP_SUMMARY
+            echo "**Mode**: Normal" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## File Check" >> $GITHUB_STEP_SUMMARY
           
-          # 文件检查结果
-          echo "## 📁 文件检查" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check_files.outputs.spider_exists }}" == "true" ]; then
-            echo "- ✅ spider.json 存在" >> $GITHUB_STEP_SUMMARY
+            echo "- spider.json: Found" >> $GITHUB_STEP_SUMMARY
           else
-            echo "- ❌ spider.json 不存在" >> $GITHUB_STEP_SUMMARY
+            echo "- spider.json: Not found" >> $GITHUB_STEP_SUMMARY
           fi
           
           if [ "${{ steps.check_files.outputs.moyun_exists }}" == "true" ]; then
-            echo "- ✅ moyun.json 存在" >> $GITHUB_STEP_SUMMARY
+            echo "- moyun.json: Found" >> $GITHUB_STEP_SUMMARY
           else
-            echo "- ❌ moyun.json 不存在" >> $GITHUB_STEP_SUMMARY
+            echo "- moyun.json: Not found" >> $GITHUB_STEP_SUMMARY
           fi
           
-          # 同步结果
           if [ "${{ steps.check_files.outputs.spider_exists }}" == "true" ] && [ "${{ steps.check_files.outputs.moyun_exists }}" == "true" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "## 🔄 同步结果" >> $GITHUB_STEP_SUMMARY
+            echo "## Sync Result" >> $GITHUB_STEP_SUMMARY
             
             if [ "${{ steps.sync_sites.outputs.sync_success }}" == "true" ]; then
               if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
-                echo "- ✅ 预览模式运行成功" >> $GITHUB_STEP_SUMMARY
+                echo "- Preview mode completed successfully" >> $GITHUB_STEP_SUMMARY
               elif [ "${{ steps.sync_sites.outputs.has_changes }}" == "true" ]; then
-                echo "- ✅ 配置已更新并提交" >> $GITHUB_STEP_SUMMARY
-                echo "- 📊 Sites数量: ${{ steps.sync_sites.outputs.sites_count }}" >> $GITHUB_STEP_SUMMARY
+                echo "- Configuration updated and committed" >> $GITHUB_STEP_SUMMARY
+                echo "- Sites count: ${{ steps.sync_sites.outputs.sites_count }}" >> $GITHUB_STEP_SUMMARY
               else
-                echo "- ℹ️ 配置已是最新，无需更新" >> $GITHUB_STEP_SUMMARY
+                echo "- No changes needed" >> $GITHUB_STEP_SUMMARY
               fi
             else
-              echo "- ❌ 同步失败，请检查日志" >> $GITHUB_STEP_SUMMARY
+              echo "- Sync failed" >> $GITHUB_STEP_SUMMARY
             fi
-          else
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "## ⚠️ 跳过同步" >> $GITHUB_STEP_SUMMARY
-            echo "由于必要文件不存在，跳过sites配置同步。" >> $GITHUB_STEP_SUMMARY
           fi
