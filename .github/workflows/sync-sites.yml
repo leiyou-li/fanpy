@@ -73,15 +73,7 @@ jobs:
                 echo "has_changes=false" >> $GITHUB_OUTPUT
               else
                 echo "has_changes=true" >> $GITHUB_OUTPUT
-                SITES_COUNT=$(python -c "
-import json
-try:
-    with open('moyun.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    print(len(data.get('sites', [])))
-except:
-    print(0)
-")
+                SITES_COUNT=$(python -c "import json; data=json.load(open('moyun.json','r',encoding='utf-8')); print(len(data.get('sites',[])))") || echo "0"
                 echo "sites_count=$SITES_COUNT" >> $GITHUB_OUTPUT
               fi
             else
