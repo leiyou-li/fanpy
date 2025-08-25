@@ -1,0 +1,29 @@
+# 上游同步配置
+# 此文件用于配置自动同步的行为
+
+# 上游仓库信息
+upstream_repo: "https://github.com/engd66/PyramidStore.git"
+upstream_branch: "main"
+
+# 同步设置
+sync_schedule: "0 0 * * *"  # 每天北京时间08:00 (UTC 00:00)
+backup_enabled: true        # 是否在同步前创建备份分支
+force_push: true           # 是否使用强制推送（安全模式）
+
+# 通知设置
+create_issue_on_failure: true    # 失败时创建Issue
+issue_labels: ["sync-failure", "automated"]
+
+# 备份管理
+backup_retention_days: 30   # 备份分支保留天数
+max_backup_branches: 10     # 最大备份分支数量
+
+# 忽略文件（这些文件不会被上游覆盖）
+preserve_files:
+  - ".github/workflows/"    # 保留工作流文件
+  - ".github/README.md"     # 保留GitHub目录的说明文档
+  - "sync-config.yml"       # 保留此配置文件
+
+# 说明：
+# - 此文件仅用于说明和记录，实际配置需要在工作流文件中修改
+# - 如需修改同步行为，请编辑 .github/workflows/ 目录下的工作流文件
