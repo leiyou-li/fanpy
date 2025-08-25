@@ -1,7 +1,7 @@
 name: Advanced Upstream Sync
 
 on:
-  # 定时运行
+  # 定时运行计划
   schedule:
     # 每天北京时间08:00运行（UTC 00:00）
     - cron: '0 0 * * *'

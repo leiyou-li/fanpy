@@ -119,15 +119,11 @@ except:
           git add moyun.json
           
           # 创建详细的提交信息
-          git commit -m "🔧 Auto-sync sites configuration
+          git commit -m "🔧 Auto-sync sites configuration from spider.json
           
-          📊 配置统计:
-          - Sites数量: ${{ steps.sync_sites.outputs.sites_count }}
-          - 同步时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          - 触发方式: ${{ github.event_name }}
-          
-          🔄 同步来源: spider.json → moyun.json
-          🤖 自动同步: GitHub Actions"
+          Sites数量: ${{ steps.sync_sites.outputs.sites_count }}
+          同步时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          触发方式: ${{ github.event_name }}"
           git push origin main
           
           echo "✅ 配置变更已提交并推送"
