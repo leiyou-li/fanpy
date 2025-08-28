@@ -68,7 +68,7 @@ class Spider(Spider):
         return response
 
     def detailContent(self, ids):
-        video = next((i for i in self.detail if str(i['vod_id']) == str(ids[0])), None)
+        video = next((i.copy() for i in self.detail if str(i['vod_id']) == str(ids[0])), None)
         if not video:
             detail_response = self.fetch(f"{self.host}/api.php/Appfox/vod?ac=detail&ids={ids[0]}",headers=self.headers,verify=False).json()
             video = detail_response.get('list')[0]
@@ -101,7 +101,7 @@ class Spider(Spider):
                 processed_play_urls.append('#'.join(processed_urls))
         video['vod_play_from'] = '$$$'.join(play_from)
         video['vod_play_url'] = '$$$'.join(processed_play_urls)
-        self.parses.update({p['playerCode']: p['url'] for p in jiexi_data_list if p.get('url', '').startswith('http')})
+        self.parses = {p['playerCode']: p['url'] for p in jiexi_data_list if p.get('url', '').startswith('http')}
         return {'list': [video]}
 
     def playerContent(self, flag, id, vipflags):
