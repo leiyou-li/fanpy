@@ -160,7 +160,7 @@
 			"key": "剧永久｜APP",
 			"name": "剧永久｜APP",
 			"type": 3,
-			"api": "./app/AppV2.py",
+			"api": "./app/APPV2.py",
 			"ext": {
 				"api": "http://yjyi.juyongjiu.com/icciu_api.php/v1.vod",
 				"datasignkey": "6QQNUsP3PkD2ajJCPCY8",
@@ -170,7 +170,7 @@
 			"key": "酷秒至尊2.0｜APP",
 			"name": "酷秒至尊2.0｜APP",
 			"type": 3,
-			"api": "./app/AppV2.py",
+			"api": "./app/APPV2.py",
 			"ext": "http://160.202.231.210:7080/ikumiao_api.php/v1.vod"
 		}, {
 			"key": "享趣视频｜APP",
