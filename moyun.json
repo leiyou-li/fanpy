@@ -179,7 +179,7 @@
       "key": "剧永久｜APP",
       "name": "剧永久｜APP",
       "type": 3,
-      "api": "./plugin/app/AppV2.py",
+      "api": "./plugin/app/APPV2.py",
       "ext": {
         "api": "http://yjyi.juyongjiu.com/icciu_api.php/v1.vod",
         "datasignkey": "6QQNUsP3PkD2ajJCPCY8",
@@ -190,7 +190,7 @@
       "key": "酷秒至尊2.0｜APP",
       "name": "酷秒至尊2.0｜APP",
       "type": 3,
-      "api": "./plugin/app/AppV2.py",
+      "api": "./plugin/app/APPV2.py",
       "ext": "http://160.202.231.210:7080/ikumiao_api.php/v1.vod"
     },
     {
@@ -334,7 +334,7 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-08-25T12:03:42.851108",
+    "last_sync": "2025-08-31T01:08:46.611635",
     "source_file": "spider.json",
     "sites_count": 26,
     "sync_script": "sync_sites.py"
