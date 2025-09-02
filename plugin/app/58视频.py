@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-# 本资源来源于互联网公开渠道，仅可用于个人学习爬虫技术。
-# 严禁将其用于任何商业用途，下载后请于 24 小时内删除，搜索结果均来自源站，本人不承担任何责任。
-
 from Crypto.Cipher import AES
 from base.spider import Spider
 import re,sys,json,base64,requests
@@ -25,6 +21,7 @@ class Spider(Spider):
             config = json.loads(extend)
         except (json.JSONDecodeError, TypeError):
             config = {}
+
         self.host = config.get("host", "https://58api.zggggs.com")
         self.datakey = config.get("datakey", "58928cae68092afc")
         self.dataiv = config.get("dataiv", "e9d732a1edcdcc0a")
@@ -97,7 +94,8 @@ class Spider(Spider):
             return {'list': []}
         if not data3['group_id'] == 0:
             return {'list': []}
-        videos = [{
+        videos = []
+        videos.append({
             'vod_id': data3.get('vod_id'),
             'vod_name': data3.get('vod_name'),
             'vod_content': data3.get('vod_blurb'),
@@ -106,7 +104,7 @@ class Spider(Spider):
             'vod_area': data3.get('vod_area'),
             'vod_play_from': '58视频',
             'vod_play_url': data3['vod_play_url']
-        }]
+        })
         return {'list': videos}
 
     def searchContent(self, key, quick, pg="1"):
@@ -125,6 +123,7 @@ class Spider(Spider):
             response = self.post(url, data=payload, headers=self.headers).json()
             data = self.decrypt(response['data'])
             vods =json.loads(data)['vods']
+
             for i in vods['list']:
                 if i['type_id'] in self.block_id or self.bn.decode('utf-8') in i['vod_class'] or b'\xe4\xbc\x9a\xe5\x91\x98'.decode('utf-8') in i['vod_type_name']:
                     continue
@@ -167,13 +166,18 @@ class Spider(Spider):
                 'vod_class': i.get('vod_class'),
                 'vod_pic': vod_pic,
                 'vod_score':i.get('vod_score'),
-                'vod_remarks': i.get('vod_remarks')
+                'vod_remarks': i.get('vod_remarks'),
+                'vod_score': i.get('vod_score')
                 })
         return {'list': videos}
 
     def playerContent(self, flag, id, vipFlags):
         if '.m3u8' in id:
-            url = f'http://127.0.0.1:9978/proxy?do=py&type=58sp&url={quote(id)}'
+            try:
+                proxyurl = f'{self.getProxyUrl(True)}&type=58sp'
+            except Exception:
+                proxyurl = 'http://127.0.0.1:9978/proxy?do=py&type=58sp'
+            url = f"{proxyurl}&url={quote(id,safe='')}"
         return {'jx': 0, 'playUrl': '', 'parse': 0, 'url': url,'header': self.play_headers}
 
     def proxy58sp(self, params):
@@ -205,6 +209,7 @@ class Spider(Spider):
                     except (requests.RequestException, ValueError) as e:
                         if attempt == retries - 1:
                             raise Exception(f"请求失败: {str(e)}")
+                        print(f"请求尝试 {attempt + 1}/{retries} 失败，正在重试...")
                 base_url = current_url.rsplit('/', 1)[0] + '/'
                 lines = content.strip().split('\n')
                 is_master_playlist = any(line.startswith('#EXT-X-STREAM-INF:') for line in lines)
@@ -225,6 +230,7 @@ class Spider(Spider):
                                         highest_bandwidth = bandwidth
                                         best_playlist_url = playlist_url
                     if best_playlist_url:
+                        print(f"选择最高清晰度流: {highest_bandwidth}bps")
                         current_url = best_playlist_url
                         continue
                     else:
@@ -246,10 +252,12 @@ class Spider(Spider):
                 if len(segment_durations) >= 2:
                     second_duration_str = "{0:.3f}".format(segment_durations[1])
                     if second_duration_str.endswith('67'):
+                        print(f"第2个分片({second_duration_str})符合规则，将删除前2个分片")
                         modified_remove_start_indices = segment_indices[:2]
                     elif len(segment_durations) >= 3:
                         third_duration_str = "{0:.3f}".format(segment_durations[2])
                         if third_duration_str.endswith('67'):
+                            print(f"第3个分片({third_duration_str})符合规则，将删除前3个分片")
                             modified_remove_start_indices = segment_indices[:3]
                 lines_to_remove = set()
                 for seg_idx in modified_remove_start_indices:
@@ -270,8 +278,10 @@ class Spider(Spider):
                                 key_url = urljoin(base_url, key_url)
                             updated_key_line = f'#EXT-X-KEY:{prefix}URI="{key_url}"{suffix}'
                             m3u8_output.append(updated_key_line)
+                            print(f"补全加密KEY URL: {key_url}")
                             continue
                     if i in lines_to_remove:
+                        print(f"移除行: {line}")
                         continue
                     if not line.startswith('#') and i > first_segment_index:
                         segment_url = line

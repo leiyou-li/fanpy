@@ -1,22 +1,22 @@
 {
 	"sites": [{
-			"key": "八戒影视｜APP",
+			"key": "八戒影视",
 			"name": "八戒影视｜App",
 			"type": 3,
 			"api": "./app/八戒影视.py"
 		}, {
-			"key": "懒懒视频｜APP",
+			"key": "懒懒视频",
 			"name": "懒懒视频｜APP",
 			"type": 3,
 			"api": "./app/懒懒视频.py"
 		}, {
-			"key": "欣欣影视｜APP",
+			"key": "欣欣影视",
 			"name": "欣欣影视｜APP",
 			"type": 3,
 			"changeable": 0,
 			"api": "./app/欣欣影视.py"
 		}, {
-			"key": "土豆浏览器 | APP",
+			"key": "土豆浏览器",
 			"name": "土豆浏览器 | APP",
 			"type": 3,
 			"api": "./app/土豆浏览器.py"
@@ -32,32 +32,32 @@
 			"api": "./app/天空影视.py"
 		},
 		{
-			"key": "TVB云播 | APP",
+			"key": "TVB云播",
 			"name": "TVB云播 | APP",
 			"type": 3,
 			"api": "./app/Appfox.py",
 			"ext": "http://app.hktvyb.cc"
 		},
 		{
-			"key": "未来影视 | APP",
+			"key": "未来影视",
 			"name": "未来影视 | APP",
 			"type": 3,
 			"api": "./app/Appfox.py",
 			"ext": "http://kumiao.yzbao.com.cn"
 		}, {
 			"key": "森林动漫New",
-			"name": "森林动漫New",
+			"name": "森林动漫New | APP",
 			"type": 3,
 			"api": "./app/FeiApp.py",
 			"ext": "https://ysa.yy-fun.cc/feiapp"
 		}, {
-			"key": "新追忆｜APP",
+			"key": "追忆apptov5",
 			"name": "追忆｜App",
 			"type": 3,
 			"api": "./app/ApptoV5无加密.py",
 			"ext": "http://111.173.114.61:8762"
 		}, {
-			"key": "爱看影视｜APP",
+			"key": "爱看影视",
 			"name": "爱看影视｜APP",
 			"type": 3,
 			"api": "./app/AppMuou.py",
@@ -67,7 +67,7 @@
 				"version": "4.2.0"
 			}
 		}, {
-			"key": "金牌影院｜APP",
+			"key": "金牌影院",
 			"name": "金牌影院｜APP",
 			"type": 3,
 			"api": "./app/AppMuou.py",
@@ -77,7 +77,7 @@
 				"version": "4.2.0"
 			}
 		}, {
-			"key": "23影视｜APP",
+			"key": "23影视",
 			"name": "23影视｜APP",
 			"type": 3,
 			"api": "./app/AppMuou.py",
@@ -157,7 +157,7 @@
 				"iv": "4058263969143708"
 			}
 		}, {
-			"key": "剧永久｜APP",
+			"key": "剧永久",
 			"name": "剧永久｜APP",
 			"type": 3,
 			"api": "./app/APPV2.py",
@@ -167,7 +167,7 @@
 				"apisignkey": "lvdoutv-1.0.0"
 			}
 		}, {
-			"key": "酷秒至尊2.0｜APP",
+			"key": "酷秒至尊2.0",
 			"name": "酷秒至尊2.0｜APP",
 			"type": 3,
 			"api": "./app/APPV2.py",
