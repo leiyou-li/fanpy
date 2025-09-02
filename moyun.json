@@ -1,26 +1,26 @@
 {
   "sites": [
     {
-      "key": "八戒影视｜APP",
+      "key": "八戒影视",
       "name": "八戒影视｜App",
       "type": 3,
       "api": "./plugin/app/八戒影视.py"
     },
     {
-      "key": "懒懒视频｜APP",
+      "key": "懒懒视频",
       "name": "懒懒视频｜APP",
       "type": 3,
       "api": "./plugin/app/懒懒视频.py"
     },
     {
-      "key": "欣欣影视｜APP",
+      "key": "欣欣影视",
       "name": "欣欣影视｜APP",
       "type": 3,
       "changeable": 0,
       "api": "./plugin/app/欣欣影视.py"
     },
     {
-      "key": "土豆浏览器 | APP",
+      "key": "土豆浏览器",
       "name": "土豆浏览器 | APP",
       "type": 3,
       "api": "./plugin/app/土豆浏览器.py"
@@ -38,14 +38,14 @@
       "api": "./plugin/app/天空影视.py"
     },
     {
-      "key": "TVB云播 | APP",
+      "key": "TVB云播",
       "name": "TVB云播 | APP",
       "type": 3,
       "api": "./plugin/app/Appfox.py",
       "ext": "http://app.hktvyb.cc"
     },
     {
-      "key": "未来影视 | APP",
+      "key": "未来影视",
       "name": "未来影视 | APP",
       "type": 3,
       "api": "./plugin/app/Appfox.py",
@@ -53,20 +53,20 @@
     },
     {
       "key": "森林动漫New",
-      "name": "森林动漫New",
+      "name": "森林动漫New | APP",
       "type": 3,
       "api": "./plugin/app/FeiApp.py",
       "ext": "https://ysa.yy-fun.cc/feiapp"
     },
     {
-      "key": "新追忆｜APP",
+      "key": "追忆apptov5",
       "name": "追忆｜App",
       "type": 3,
       "api": "./plugin/app/ApptoV5无加密.py",
       "ext": "http://111.173.114.61:8762"
     },
     {
-      "key": "爱看影视｜APP",
+      "key": "爱看影视",
       "name": "爱看影视｜APP",
       "type": 3,
       "api": "./plugin/app/AppMuou.py",
@@ -77,7 +77,7 @@
       }
     },
     {
-      "key": "金牌影院｜APP",
+      "key": "金牌影院",
       "name": "金牌影院｜APP",
       "type": 3,
       "api": "./plugin/app/AppMuou.py",
@@ -88,7 +88,7 @@
       }
     },
     {
-      "key": "23影视｜APP",
+      "key": "23影视",
       "name": "23影视｜APP",
       "type": 3,
       "api": "./plugin/app/AppMuou.py",
@@ -176,7 +176,7 @@
       }
     },
     {
-      "key": "剧永久｜APP",
+      "key": "剧永久",
       "name": "剧永久｜APP",
       "type": 3,
       "api": "./plugin/app/APPV2.py",
@@ -187,7 +187,7 @@
       }
     },
     {
-      "key": "酷秒至尊2.0｜APP",
+      "key": "酷秒至尊2.0",
       "name": "酷秒至尊2.0｜APP",
       "type": 3,
       "api": "./plugin/app/APPV2.py",
@@ -334,7 +334,7 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-08-31T01:08:46.611635",
+    "last_sync": "2025-09-02T01:05:29.030535",
     "source_file": "spider.json",
     "sites_count": 26,
     "sync_script": "sync_sites.py"
