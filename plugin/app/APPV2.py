@@ -128,7 +128,7 @@ class Spider(Spider):
                 path = f'/detail?vod_id={ids[0]}&rel_limit=10'
                 if self.apisignkey and self.datasignkey:
                     keytime = self.keytime()
-                    path = self.datasign(f'{path}&apikey={self.apikey()}&keytime={keytime}',keytime)
+                    path = self.datasign(f'{path}&apikey={self.apikey()}&keytime={keytime}', keytime)
             else:
                 path = f'/video_detail?id={ids[0]}'
             data = self.fetch(f"{self.api}{path}", headers=self.headers, verify=False).text
@@ -136,20 +136,19 @@ class Spider(Spider):
             data = data['data']
         if 'vod_info' in data:
             data = data['vod_info']
-        show = []
-        vod_play_url = []
+        show, vod_play_url = [], []
         if 'vod_url_with_player' in data:
             for i in data['vod_url_with_player']:
                 if i['code'] == i['name']:
                     show.append(i['name'])
                 else:
                     show.append(f"{i['name']}\u2005({i['code']})")
-                parse_api = i.get('parse_api','')
+                parse_api = i.get('parse_api', '')
                 parse_secret = i.get('parse_secret', 0)
                 if parse_api and parse_api.startswith('http') and not parse_secret:
-                    url = i.get('url','')
+                    url = i.get('url', '')
                     if url:
-                        url2 = '#'.join([i+ '@' + parse_api  for i in url.split('#')])
+                        url2 = '#'.join([i + '@' + parse_api for i in url.split('#')])
                     vod_play_url.append(url2)
                 else:
                     vod_play_url.append(i.get('url', ''))
@@ -157,27 +156,27 @@ class Spider(Spider):
         if 'vod_play_list' in data:
             vod_play_list = data['vod_play_list']
             for i in vod_play_list.values() if isinstance(vod_play_list, dict) else vod_play_list:
-                parses = ''
+                parses = []
                 player_info = i['player_info']
                 if player_info['show'] == i['from']:
                     show.append(player_info['show'])
                 else:
                     show.append(f"{player_info['show']}\u2005({i['from']})")
-                parse = player_info.get('parse','').strip()
-                parse2 = player_info.get('parse2','').strip()
+                parse = player_info.get('parse', '').strip()
+                parse2 = player_info.get('parse2', '').strip()
                 if 'parse' in player_info and parse.startswith('http'):
-                    parses += parse + ','
+                    parses.append(parse.replace('..', '.'))
                 if 'parse2' in player_info and parse2.startswith('http') and parse2 != parse:
-                    parses += parse2
-                parses = parses.rstrip(',')
-                url = ''
+                    parses.append(parse2.replace('..', '.'))
+                parses = ','.join(parses)
+                url = []
                 urls = i['urls']
                 for j in urls.values() if isinstance(urls, dict) else urls:
-                    if parse:
-                        url += f"{j['name']}${j['url']}@{parses}#"
+                    if parses:
+                        url.append(f"{j['name']}${j['url']}@{parses}")
                     else:
-                        url += f"{j['name']}${j['url']}#"
-                url = url.rstrip('#')
+                        url.append(f"{j['name']}${j['url']}")
+                url = '#'.join(url)
                 vod_play_url.append(url)
         if 'vod_play_list' in data:
             data.pop('vod_play_list')
