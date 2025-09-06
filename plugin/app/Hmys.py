@@ -6,7 +6,7 @@ from base.spider import Spider
 from Crypto.Cipher import DES3
 from Crypto.Util.Padding import unpad
 from urllib.parse import quote, unquote, urljoin, urlparse
-import re, sys, time, json, random, base64, hashlib, urllib3
+import re, sys, time, json, base64, hashlib, urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 sys.path.append('..')
 
@@ -37,10 +37,10 @@ class Spider(Spider):
             ext = json.loads(extend.strip())
             host = ext.get('host').rstrip('/')
             if not re.match(r'^https?://[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(:\d+)?/?$', host): return None
-            appid = ext.get('app_id').rstrip('/')
-            deviceid = ext.get('deviceid').rstrip('/')
-            version_code = ext.get('versionCode').rstrip('/')
-            channel = ext.get('UMENG_CHANNEL').rstrip('/')
+            appid = ext.get('app_id').strip()
+            deviceid = ext.get('deviceid').strip()
+            version_code = ext.get('versionCode').strip()
+            channel = ext.get('UMENG_CHANNEL').strip()
             if not(appid and deviceid and version_code and channel): return None
             if not self.is_valid_android_id(deviceid): return None
             self.host = host
