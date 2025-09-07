@@ -7,10 +7,10 @@
       "api": "./plugin/app/八戒影视.py"
     },
     {
-      "key": "懒懒视频",
-      "name": "懒懒视频｜APP",
+      "key": "美剧侠",
+      "name": "美剧侠｜APP",
       "type": 3,
-      "api": "./plugin/app/懒懒视频.py"
+      "api": "./plugin/app/美剧侠.py"
     },
     {
       "key": "欣欣影视",
@@ -230,19 +230,13 @@
       }
     },
     {
-      "key": "山有木兮 | web",
-      "name": "山有木兮 | web",
-      "type": 3,
-      "api": "./plugin/web/山有木兮.py"
-    },
-    {
-      "key": "锦鲤短剧 | web",
+      "key": "锦鲤短剧",
       "name": "锦鲤短剧 | web",
       "type": 3,
       "api": "./plugin/web/锦鲤短剧.py"
     },
     {
-      "key": "星之阁短剧 | api",
+      "key": "星之阁短剧",
       "name": "星之阁短剧 | api",
       "type": 3,
       "api": "./plugin/web/星之阁短剧.py"
@@ -347,9 +341,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-09-04T01:01:16.845162",
+    "last_sync": "2025-09-07T01:07:51.422587",
     "source_file": "spider.json",
-    "sites_count": 27,
+    "sites_count": 26,
     "sync_script": "sync_sites.py"
   }
 }
