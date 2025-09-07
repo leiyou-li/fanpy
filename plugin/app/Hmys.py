@@ -71,7 +71,7 @@ class Spider(Spider):
         if not self.host: return None
         headers = self.headers.copy()
         headers['timestamp'] = self.timestamp()
-        response = self.post(f'{self.host}/api/nav/list', headers=headers,verify=False).json()
+        response = self.post(f'{self.host}/api/nav/list', headers=headers, verify=False).json()
         data = self.des3(response['data'])
         result = json.loads(data)['result']
         if not result: return None
@@ -82,7 +82,7 @@ class Spider(Spider):
                     recommend_id = i.get('nav_id')
                     break
         headers['timestamp'] = self.timestamp()
-        response2 = self.post(f'{self.host}/api/nav/index',data={'nav_id': recommend_id or '253'}, headers=headers, verify=False).json()
+        response2 = self.post(f'{self.host}/api/nav/index', data={'nav_id': recommend_id or '253'}, headers=headers, verify=False).json()
         data2 = self.des3(response2['data'])
         result2 = json.loads(data2)['result']
         for item in result2:
@@ -92,10 +92,10 @@ class Spider(Spider):
                 if not isinstance(block, dict):
                     continue
                 for vod in block.get('vod_list', []):
-                    if vod.get('total') == 1:
-                        remark = f"评分：{vod['score']}"
-                    else:
+                    if vod.get('type_pid') != 1:
                         remark = f"{vod['serial']}集全" if vod.get('is_end') == 1 else f"更新至{vod['serial']}集"
+                    else:
+                        remark = f"评分：{vod['score']}"
                     videos.append({
                         'vod_id': vod['vod_id'],
                         'vod_name': vod['title'],
@@ -120,11 +120,11 @@ class Spider(Spider):
         response = self.post(f'{self.host}/api/block/category', data=payload, headers=headers, verify=False).json()
         data = json.loads(self.des3(response['data']))
         videos = []
-        for i in data.get('result',[]):
-            if i.get('total') == 1:
-                remark = f"评分：{i['score']}"
-            else:
+        for i in data.get('result', []):
+            if i.get('type_pid') != 1:
                 remark = f"{i['serial']}集全" if i.get('is_end') == 1 else f"更新至{i['serial']}集"
+            else:
+                remark = f"评分：{i['score']}"
             videos.append({
                 'vod_id': i['vod_id'],
                 'vod_name': i['title'],
@@ -145,8 +145,8 @@ class Spider(Spider):
         response = self.post(f'{self.host}/api/search/result', data=payload, headers=headers, verify=False).json()
         data = json.loads(self.des3(response['data']))
         videos = []
-        for i in data.get('result',[]):
-            vod_remarks = i['tags'] if i['serial'] == '1' else f"{i['serial']}集"
+        for i in data.get('result', []):
+            vod_remarks = f"{i['serial']}集" if i['type_pid'] != '1' else i['tags']
             if i['short_video'] == 1:
                 vod_remarks += ',短剧'
             videos.append({

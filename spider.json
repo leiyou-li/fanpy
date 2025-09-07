@@ -5,10 +5,10 @@
 			"type": 3,
 			"api": "./app/八戒影视.py"
 		}, {
-			"key": "懒懒视频",
-			"name": "懒懒视频｜APP",
+			"key": "美剧侠",
+			"name": "美剧侠｜APP",
 			"type": 3,
-			"api": "./app/懒懒视频.py"
+			"api": "./app/美剧侠.py"
 		}, {
 			"key": "欣欣影视",
 			"name": "欣欣影视｜APP",
@@ -199,17 +199,12 @@
 				}
 			}
 		}, {
-			"key": "山有木兮 | web",
-			"name": "山有木兮 | web",
-			"type": 3,
-			"api": "./web/山有木兮.py"
-		}, {
-			"key": "锦鲤短剧 | web",
+			"key": "锦鲤短剧",
 			"name": "锦鲤短剧 | web",
 			"type": 3,
 			"api": "./web/锦鲤短剧.py"
 		}, {
-			"key": "星之阁短剧 | api",
+			"key": "星之阁短剧",
 			"name": "星之阁短剧 | api",
 			"type": 3,
 			"api": "./web/星之阁短剧.py"
