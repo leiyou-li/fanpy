@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 本资源来源于互联网公开渠道，仅可用于个人学习及爬虫技术交流。
+# 本资源来源于互联网公开渠道，仅可用于个人学习爬虫技术。
 # 严禁将其用于任何商业用途，下载后请于 24 小时内删除，搜索结果均来自源站，本人不承担任何责任。
 
 from Crypto.Cipher import AES
@@ -10,23 +10,33 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 sys.path.append('..')
 
 class Spider(Spider):
-    host, jiexi, headers = {
-        'User-Agent': 'XinJieApp/1.0',
-        'Accept-Encoding': 'gzip',
-        'cache-control': 'no-cache'
-    }, '', ''
+    host, jiexi, headers,playua,key,iv = {
+        'User-Agent': "okhttp/4.12.0",
+        'Connection': "Keep-Alive",
+        'Accept-Encoding': "gzip"
+    }, '', '', '', '',''
 
     def init(self, extend=''):
-        ext = extend.strip()
-        host = 'https://tvfun.centos.chat/app.json'
-        self.key = '505cab36b1111416'
-        self.iv = '0e832063ac451b27'
-        if ext.startswith('http'):
-            host = ext
-        if not re.match(r'^https?://[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(:\d+)?/?$', host):
-            host = self.fetch(host,headers=self.headers,verify=False).json()['server']['url']
-        self.host = host.rstrip('/')
-        return None
+        try:
+            ext = json.loads(extend)
+            host = ext.get('host')
+            self.key = ext.get('key')
+            self.iv = ext.get('iv')
+            if not host.startswith('http'):
+                try:
+                    hostkey = ext.get('hostkey', 'Kkebx6vFqWMCNKwmaaeGOmnZBNzbQ1Bj')
+                    hostiv = ext.get('hostiv', 'cBqqjFQUqBeAJ61z')
+                    host = self.decrypt(host,hostkey,hostiv)
+                except Exception:
+                    self.host = ''
+                    return
+            if not re.match(r'^https?://[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(:\d+)?/?$', host):
+                headers = {'User-Agent': "XinJieApp/1.0",'Accept-Encoding': "gzip",'cache-control': "no-cache"}
+                host = self.fetch(host,headers=headers,verify=False).json()['server']['url']
+            if len(self.key) >= 16 and len(self.iv) >= 16 and host.startswith('http'): self.host = host.rstrip('/')
+            self.playua = ext.get('playua', 'Dalvik/2.1.0 (Linux; U; Android 15; Xiaomi 15 Pro Build/AP2A.240905.003)')
+        except Exception:
+            self.host = ''
 
     def homeContent(self, filter):
         if not self.host: return None
@@ -121,26 +131,27 @@ class Spider(Spider):
 
     def playerContent(self, flag, id, vipflags):
         play_from, raw_url = id.split('@', 1)
-        default_ua = 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
         if self.jiexi:
             try:
-                response = self.fetch(f"{self.host}/admin/jiexi.php?url={quote(raw_url, safe='')}&source={play_from}", headers=self.headers, verify=False).json()
+                headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", 'Connection': "Keep-Alive", 'Accept-Encoding': "gzip"}
+                response = self.fetch(f"{self.host}/admin/jiexi.php?url={quote(raw_url, safe='')}&source={play_from}", headers=headers, verify=False).json()
                 if response.get('encrypted') == 1:
                     data_ = self.decrypt(response['data'])
                     data = json.loads(data_)
                 play_url = data['url']
                 url = play_url if play_url.startswith('http') else id
-                ua = response.get('UA', default_ua)
+                ua = response.get('UA', self.playua)
             except Exception:
-                url, ua = raw_url, default_ua
+                url, ua = raw_url, self.playua
         else:
-            url,ua = raw_url,default_ua
+            url,ua = raw_url,self.playua
         return {'jx': '0','parse': '0','url': url,'header': {'User-Agent': ua}}
 
-    def decrypt(self, str):
-        key = self.key.ljust(32, '0')
+    def decrypt(self, str, key='', iv=''):
+        if not key or not iv: key, iv = self.key, self.iv
+        key = key.ljust(32, '0')
         key_bytes = key.encode('utf-8')
-        iv_bytes = self.iv.encode('utf-8')
+        iv_bytes = iv.encode('utf-8')
         ciphertext = base64.b64decode(str)
         cipher = AES.new(key_bytes, AES.MODE_CBC, iv_bytes)
         plaintext = cipher.decrypt(ciphertext)
