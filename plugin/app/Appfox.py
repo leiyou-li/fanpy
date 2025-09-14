@@ -63,7 +63,7 @@ class Spider(Spider):
         if not self.host: return None
         path = f"{self.host}/api.php/Appfox/vod?ac=detail&wd={key}"
         if self.froms: path += '&from=' + self.froms
-        response = self.fetch(path, headers=self.headers, verify=False).json()
+        response = self.fetch(path, headers=self.headers, verify=False, timeout=7).json()
         self.detail = response['list']
         return response
 
@@ -106,7 +106,7 @@ class Spider(Spider):
 
     def playerContent(self, flag, id, vipflags):
         play_from, raw_url = id.split('@', 1)
-        jx, parse, parsed = 1, 0, 0
+        jx, parse, parsed = 0, 0, 0
         url = raw_url
         parses_main = []
         if self.custom_first == 1:
@@ -115,15 +115,16 @@ class Spider(Spider):
         else:
             parses_main.append(self.parses)
             parses_main.append(self.custom_parses)
+        print(parses_main)
         for parses2 in parses_main:
-            if not parsed and not re.match(r'https?://.*\.(m3u8|mp4|flv)', url):
+            if not parsed and not re.match(r'https?://.*\.(m3u8|mp4|flv|mkv)', url):
                 for key, parsers in parses2.items():
                     if play_from not in key:
                         continue
-                    if isinstance(parsers,list):
+                    if isinstance(parsers, list):
                         for parser in parsers:
                             if parser.startswith('parse:'):
-                                url,jx,parse = parser.split('parse:')[1] + raw_url,0,1
+                                url, jx, parse = parser.split('parse:')[1] + raw_url, 0, 1
                                 break
                             try:
                                 response = self.fetch(f"{parser}{raw_url}", headers=self.headers, verify=False).json()
@@ -134,7 +135,7 @@ class Spider(Spider):
                                 continue
                     else:
                         if parsers.startswith('parse:'):
-                            url,jx,parse = parsers.split('parse:')[1] + raw_url,0,1
+                            url, jx, parse = parsers.split('parse:')[1] + raw_url, 0, 1
                             break
                         try:
                             response = self.fetch(f"{parsers}{raw_url}", headers=self.headers, verify=False).json()
@@ -147,9 +148,9 @@ class Spider(Spider):
                         break
             if parsed or parse:
                 break
-        if re.match(r'https?:\/\/.*\.(m3u8|mp4|flv)', url) or parsed == 1:
-            jx = 0
-        return { 'jx': jx, 'parse': parse, 'url': url, 'header': {'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'}}
+        if not (re.match(r'https?:\/\/.*\.(m3u8|mp4|flv|mkv)', url) or parsed == 1):
+            jx = 1
+        return {'jx': jx, 'parse': parse, 'url': url, 'header': {'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'}}
 
     def getName(self):
         pass
