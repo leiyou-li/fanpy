@@ -67,21 +67,49 @@
     },
     {
       "key": "TVB云播",
-      "name": "TVB云播 | APP",
+      "name": "TVB云播｜APP",
       "type": 3,
-      "api": "./plugin/app/Appfox.py",
+      "changeable": 0,
+      "api": "./Appfox.py",
       "ext": "http://app.hktvyb.cc"
     },
     {
       "key": "未来影视",
-      "name": "未来影视 | APP",
+      "name": "未来影视｜APP",
       "type": 3,
-      "api": "./plugin/app/Appfox.py",
-      "ext": "http://kumiao.yzbao.com.cn"
+      "changeable": 0,
+      "api": "./Appfox.py",
+      "ext": {
+        "host": "http://kumiao.yzbao.com.cn",
+        "ver": 2
+      }
+    },
+    {
+      "key": "米兔影视",
+      "name": "米兔影视 | APP",
+      "type": 3,
+      "changeable": 0,
+      "api": "./Appfox.py",
+      "ext": {
+        "host": "http://115.190.136.55:1689",
+        "cms": "http://d.tv.tkbot.fun/api.php/appfox/vod?ac=videolist",
+        "ver": 2
+      }
+    },
+    {
+      "key": "铂览9",
+      "name": "铂览9 | APP",
+      "type": 3,
+      "changeable": 0,
+      "api": "./Appfox.py",
+      "ext": {
+        "host": "https://fx.bolan9.pro",
+        "ver": 2
+      }
     },
     {
       "key": "森林动漫New",
-      "name": "森林动漫New | APP",
+      "name": "森林动漫New｜APP",
       "type": 3,
       "api": "./plugin/app/FeiApp.py",
       "ext": "https://ysa.yy-fun.cc/feiapp"
@@ -356,9 +384,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-09-11T01:03:37.320883",
+    "last_sync": "2025-09-20T01:00:36.238077",
     "source_file": "spider.json",
-    "sites_count": 27,
+    "sites_count": 29,
     "sync_script": "sync_sites.py"
   }
 }
