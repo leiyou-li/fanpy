@@ -11,10 +11,7 @@ sys.path.append('..')
 
 class Spider(Spider):
     api,apisignkey,datasignkey,detail_type,search_data = '', '' , '','',''
-
-    headers = {
-        'User-Agent': 'okhttp/4.12.0',
-    }
+    headers = {'User-Agent': 'okhttp/4.12.0',}
 
     def init(self, extend=""):
         ext = extend.rstrip()
@@ -22,15 +19,19 @@ class Spider(Spider):
             self.api = ext.rstrip('/')
         else:
             arr = json.loads(ext)
-            self.api = arr['api'].rstrip('/')
-            if self.api.endswith('v1.vod'):
-                self.detail_type = arr.get('detail_type','')
+            api = arr['api'].rstrip('/')
+            if not api.startswith('http'): return
+            self.api = api
+            ua = arr.get('ua')
+            if ua: self.headers['User-Agent'] = ua
+            if self.api.endswith(('v1.vod', 'v1.xvod')):
+                self.detail_type = arr.get('detail_type', '')
             self.apisignkey = arr.get('apisignkey', '')
             if self.apisignkey:
                 self.datasignkey = arr.get('datasignkey', '6QQNUsP3PkD2ajJCPCY8')
 
     def homeContent(self, filter):
-        if self.api.endswith('v1.vod'):
+        if self.api.endswith(('v1.vod', 'v1.xvod')):
             path = '/types'
             if self.apisignkey and self.datasignkey:
                 path = self.datasign(path)
@@ -42,7 +43,7 @@ class Spider(Spider):
         keys = ["class", "area", "lang", "year", "letter", "by", "sort"]
         filters = {}
         classes = []
-        for item in data.get('list',data.get('data',[])):
+        for item in data.get('list', data.get('typelist', data.get('data', []))):
             has_non_empty_field = False
             jsontype_extend = item["type_extend"]
             classes.append({"type_name": item["type_name"], "type_id": item["type_id"]})
@@ -58,11 +59,10 @@ class Spider(Spider):
                     value_array = [{"n": value.strip(), "v": value.strip()} for value in values if
                                    value.strip() != ""]
                     filters[str(item["type_id"])].append({"key": dkey, "name": dkey, "value": value_array})
-        result = {"class": classes, "filters": filters}
-        return result
+        return {"class": classes, "filters": filters}
 
     def homeVideoContent(self):
-        if self.api.endswith('v1.vod'):
+        if self.api.endswith(('v1.vod','v1.xvod')):
             path = '/vodPhbAll'
             if self.apisignkey and self.datasignkey:
                 keytime = self.keytime()
@@ -73,7 +73,7 @@ class Spider(Spider):
         else:
             data = self.fetch(f"{self.api}/index_video?token=", headers=self.headers, verify=False).json()
         videos = []
-        if self.api.endswith('v1.vod'):
+        if self.api.endswith(('v1.vod','v1.xvod')):
             for item in data['list']: videos.extend(item['vod_list'])
         elif 'list' in data:
             for item in data['list']: videos.extend(item['vlist'])
@@ -82,7 +82,7 @@ class Spider(Spider):
         return {'list': videos}
 
     def categoryContent(self, tid, pg, filter, extend):
-        if self.api.endswith('v1.vod'):
+        if self.api.endswith(('v1.vod','v1.xvod')):
             path = f"?type={tid}&class={extend.get('class', '')}&lang={extend.get('lang', '')}&area={extend.get('area', '')}&year={extend.get('year', '')}&by=&page={pg}&limit=9"
             if self.apisignkey and self.datasignkey:
                 keytime = self.keytime()
@@ -98,7 +98,7 @@ class Spider(Spider):
         return data
 
     def searchContent(self, key, quick, pg="1"):
-        if self.api.endswith('v1.vod'):
+        if self.api.endswith(('v1.vod','v1.xvod')):
             path = f"?page={pg}&limit=10&wd={key}"
             if self.apisignkey and self.datasignkey:
                 keytime = self.keytime()
@@ -107,7 +107,7 @@ class Spider(Spider):
             path = f"/search?text={key}&pg={pg}"
         data = self.fetch(f"{self.api}{path}", headers=self.headers, verify=False).text
         data = json.loads(data[1:] if data.startswith('\ufeff') else data)
-        if self.api.endswith('v1.vod') and self.detail_type == 'search':
+        if self.api.endswith(('v1.vod','v1.xvod')) and self.detail_type == 'search':
             self.search_data = data
         data2 = data.get('list',data.get('data',[]))
         if 'type' in data2:
@@ -124,11 +124,11 @@ class Spider(Spider):
                     data = i
                     break
         else:
-            if self.api.endswith('v1.vod'):
+            if self.api.endswith(('v1.vod','v1.xvod')):
                 path = f'/detail?vod_id={ids[0]}&rel_limit=10'
                 if self.apisignkey and self.datasignkey:
                     keytime = self.keytime()
-                    path = self.datasign(f'{path}&apikey={self.apikey()}&keytime={keytime}', keytime)
+                    path = self.datasign(f'{path}&apikey={self.apikey()}&keytime={keytime}',keytime)
             else:
                 path = f'/video_detail?id={ids[0]}'
             data = self.fetch(f"{self.api}{path}", headers=self.headers, verify=False).text
@@ -143,12 +143,12 @@ class Spider(Spider):
                     show.append(i['name'])
                 else:
                     show.append(f"{i['name']}\u2005({i['code']})")
-                parse_api = i.get('parse_api', '')
+                parse_api = i.get('parse_api','')
                 parse_secret = i.get('parse_secret', 0)
                 if parse_api and parse_api.startswith('http') and not parse_secret:
-                    url = i.get('url', '')
+                    url = i.get('url','')
                     if url:
-                        url2 = '#'.join([i + '@' + parse_api for i in url.split('#')])
+                        url2 = '#'.join([i+ '@' + parse_api  for i in url.split('#')])
                     vod_play_url.append(url2)
                 else:
                     vod_play_url.append(i.get('url', ''))
@@ -162,12 +162,12 @@ class Spider(Spider):
                     show.append(player_info['show'])
                 else:
                     show.append(f"{player_info['show']}\u2005({i['from']})")
-                parse = player_info.get('parse', '').strip()
-                parse2 = player_info.get('parse2', '').strip()
-                if 'parse' in player_info and parse.startswith('http'):
-                    parses.append(parse.replace('..', '.'))
-                if 'parse2' in player_info and parse2.startswith('http') and parse2 != parse:
-                    parses.append(parse2.replace('..', '.'))
+                parse = player_info.get('parse')
+                parse2 = player_info.get('parse2','')
+                if parse and isinstance(parse,str) and parse.startswith('http'):
+                    parses.append(parse.strip().replace('..','.'))
+                if parse2 and isinstance(parse2,str) and parse2.startswith('http') and parse2 != parse:
+                    parses.append(parse2.strip().replace('..','.'))
                 parses = ','.join(parses)
                 url = []
                 urls = i['urls']
@@ -233,27 +233,22 @@ class Spider(Spider):
         year = str(date.year)
         hour = str(date.hour)
         minute = str(date.minute)
-        if len(hour) < 2:
-            hour = "0" + hour
-        if len(minute) < 2:
-            minute = "0" + minute
+        if len(hour) < 2: hour = "0" + hour
+        if len(minute) < 2: minute = "0" + minute
         str_value = self.apisignkey
         sign_str = f"{year}:{hour}:{year}:{minute}:{str_value}"
-        md5_hash = self.md5(sign_str)
-        return md5_hash
+        return self.md5(sign_str)
 
     def datasign(self, url='', timestamp=''):
         parsed_url = urlparse(url)
         query_params = self._parse_query_params(parsed_url.query)
-        if not timestamp:
-            timestamp = str(time.time())
+        if not timestamp: timestamp = str(time.time())
         query_params["timestamp"] = timestamp
         sorted_params = sorted(query_params.items(), key=lambda x: x[0])
         sign = self._generate_signature(sorted_params)
         query_params["datasign"] = sign
         new_query = urlencode(query_params)
-        new_url = parsed_url._replace(query=new_query).geturl()
-        return new_url
+        return parsed_url._replace(query=new_query).geturl()
 
     def _parse_query_params(self, query_str):
         params = {}
@@ -265,13 +260,13 @@ class Spider(Spider):
             key, value = param.split('=', 1)
             if value:
                 params[key] = value
+                print(f"参数: {key}={value}")
         return params
 
     def _generate_signature(self, sorted_params):
         param_str = '&'.join([f"{k}={v}" for k, v in sorted_params])
         raw_sign_str = f"{param_str}{self.datasignkey}"
-        md5_hash = hashlib.md5(raw_sign_str.encode('utf-8')).hexdigest()
-        return md5_hash
+        return hashlib.md5(raw_sign_str.encode('utf-8')).hexdigest()
 
     def localProxy(self, param):
         pass
