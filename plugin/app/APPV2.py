@@ -10,7 +10,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 sys.path.append('..')
 
 class Spider(Spider):
-    api,apisignkey,datasignkey,detail_type,search_data = '', '' , '','',''
+    api,host,apisignkey,datasignkey,detail_type,search_data = '','','','','',''
     headers = {'User-Agent': 'okhttp/4.12.0',}
 
     def init(self, extend=""):
@@ -29,9 +29,20 @@ class Spider(Spider):
             self.apisignkey = arr.get('apisignkey', '')
             if self.apisignkey:
                 self.datasignkey = arr.get('datasignkey', '6QQNUsP3PkD2ajJCPCY8')
+        if '$' in self.api:
+            host_, path = self.api.split('$', 1)
+            data = self.fetch(host_, headers=self.headers, verify=False).text
+            try:
+                data2 = json.loads(data)
+                if isinstance(data2, list): data2 = data2[0]
+            except (json.JSONDecodeError, TypeError):
+                data2 = data
+            if data2 and isinstance(data2, str) and data2.startswith('http'):
+                self.api = data2.rstrip('/') + path
+        self.host = self.domain(self.api)
 
     def homeContent(self, filter):
-        if self.api.endswith(('v1.vod', 'v1.xvod')):
+        if self.api.endswith(('v1.vod','v1.xvod')):
             path = '/types'
             if self.apisignkey and self.datasignkey:
                 path = self.datasign(path)
@@ -43,7 +54,7 @@ class Spider(Spider):
         keys = ["class", "area", "lang", "year", "letter", "by", "sort"]
         filters = {}
         classes = []
-        for item in data.get('list', data.get('typelist', data.get('data', []))):
+        for item in data.get('list',data.get('typelist',data.get('data',[]))):
             has_non_empty_field = False
             jsontype_extend = item["type_extend"]
             classes.append({"type_name": item["type_name"], "type_id": item["type_id"]})
@@ -61,6 +72,17 @@ class Spider(Spider):
                     filters[str(item["type_id"])].append({"key": dkey, "name": dkey, "value": value_array})
         return {"class": classes, "filters": filters}
 
+    def domain(self,url):
+        parsed_url = urlparse(url)
+        protocol = parsed_url.scheme
+        domain = parsed_url.netloc
+        if protocol and domain:
+            return f"{protocol}://{domain}"
+        elif domain:
+            return domain
+        else:
+            return ''
+
     def homeVideoContent(self):
         if self.api.endswith(('v1.vod','v1.xvod')):
             path = '/vodPhbAll'
@@ -74,12 +96,10 @@ class Spider(Spider):
             data = self.fetch(f"{self.api}/index_video?token=", headers=self.headers, verify=False).json()
         videos = []
         if self.api.endswith(('v1.vod','v1.xvod')):
-            for item in data['list']: videos.extend(item['vod_list'])
-        elif 'list' in data:
-            for item in data['list']: videos.extend(item['vlist'])
-        elif 'data' in data:
-            for item in data['data']: videos.extend(item['vlist'])
-        return {'list': videos}
+            for item in data['list']: videos.extend(item.get('vod_list'))
+        else:
+            for item in data.get('list',data.get('data',[])): videos.extend(item['vlist'])
+        return {'list': self.pic_add_domain(videos)}
 
     def categoryContent(self, tid, pg, filter, extend):
         if self.api.endswith(('v1.vod','v1.xvod')):
@@ -95,7 +115,7 @@ class Spider(Spider):
             data = self.fetch(f"{self.api}/video", params=params, headers=self.headers, verify=False).json()
             if 'data' in data:
                 data = {'list':data['data']}
-        return data
+        return self.pic_add_domain(data)
 
     def searchContent(self, key, quick, pg="1"):
         if self.api.endswith(('v1.vod','v1.xvod')):
@@ -115,7 +135,7 @@ class Spider(Spider):
                 item.pop('type', None)
         if not 'list' in data2:
             data2 = {'list': data2, 'page': pg}
-        return data2
+        return self.pic_add_domain(data2)
 
     def detailContent(self, ids):
         if self.detail_type == 'search':
@@ -124,11 +144,11 @@ class Spider(Spider):
                     data = i
                     break
         else:
-            if self.api.endswith(('v1.vod','v1.xvod')):
+            if self.api.endswith(('v1.vod', 'v1.xvod')):
                 path = f'/detail?vod_id={ids[0]}&rel_limit=10'
                 if self.apisignkey and self.datasignkey:
                     keytime = self.keytime()
-                    path = self.datasign(f'{path}&apikey={self.apikey()}&keytime={keytime}',keytime)
+                    path = self.datasign(f'{path}&apikey={self.apikey()}&keytime={keytime}', keytime)
             else:
                 path = f'/video_detail?id={ids[0]}'
             data = self.fetch(f"{self.api}{path}", headers=self.headers, verify=False).text
@@ -143,13 +163,12 @@ class Spider(Spider):
                     show.append(i['name'])
                 else:
                     show.append(f"{i['name']}\u2005({i['code']})")
-                parse_api = i.get('parse_api','')
+                parse_api = i.get('parse_api', '')
                 parse_secret = i.get('parse_secret', 0)
                 if parse_api and parse_api.startswith('http') and not parse_secret:
-                    url = i.get('url','')
-                    if url:
-                        url2 = '#'.join([i+ '@' + parse_api  for i in url.split('#')])
-                    vod_play_url.append(url2)
+                    url = i.get('url', '')
+                    if url: url = '#'.join([i + '@' + parse_api for i in url.split('#')])
+                    vod_play_url.append(url)
                 else:
                     vod_play_url.append(i.get('url', ''))
             data.pop('vod_url_with_player')
@@ -163,17 +182,21 @@ class Spider(Spider):
                 else:
                     show.append(f"{player_info['show']}\u2005({i['from']})")
                 parse = player_info.get('parse')
-                parse2 = player_info.get('parse2','')
-                if parse and isinstance(parse,str) and parse.startswith('http'):
-                    parses.append(parse.strip().replace('..','.'))
-                if parse2 and isinstance(parse2,str) and parse2.startswith('http') and parse2 != parse:
-                    parses.append(parse2.strip().replace('..','.'))
+                parse2 = player_info.get('parse2')
+                features = player_info.get('features')
+                if parse and isinstance(parse, str) and parse.startswith('http'):
+                    parses.append(parse.strip().replace('..', '.'))
+                if parse2 and isinstance(parse2, str) and parse2.startswith('http') and parse2 != parse:
+                    parses.append(parse2.strip().replace('..', '.'))
                 parses = ','.join(parses)
                 url = []
                 urls = i['urls']
                 for j in urls.values() if isinstance(urls, dict) else urls:
                     if parses:
-                        url.append(f"{j['name']}${j['url']}@{parses}")
+                        if features and self.check_rematches(features, j['url']):
+                            url.append(f"{j['name']}${j['url']}")
+                        else:
+                            url.append(f"{j['name']}${j['url']}@{parses}")
                     else:
                         url.append(f"{j['name']}${j['url']}")
                 url = '#'.join(url)
@@ -188,14 +211,14 @@ class Spider(Spider):
             data['vod_play_from'] = '$$$'.join(show)
         if vod_play_url:
             data['vod_play_url'] = '$$$'.join(vod_play_url)
-        return {'list': [data]}
+        return {'list': self.pic_add_domain([data])}
 
     def playerContent(self, flag, id, vipFlags):
         video_pattern = re.compile(r'https?:\/\/.*\.(?:m3u8|mp4|flv)')
-        jx,url,ua = 0,'','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+        jx, url, ua = 0, '', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
         if '@' in id:
             rawurl, jxapi = id.split('@', 1)
-            jxapis = jxapi.split(',', 1) if ',' in jxapi else [jxapi]
+            jxapis = jxapi.split(',') if ',' in jxapi else [jxapi]
             for jxapi_ in jxapis:
                 try:
                     res = self.fetch(f"{jxapi_}{rawurl}", headers=self.headers, timeout=10, verify=False).text
@@ -217,8 +240,32 @@ class Spider(Spider):
             url = id
             jx = 0 if video_pattern.match(id) else 1
         if url.startswith('NBY'):
-            jx, url = 0,''
-        return {'jx': jx,'parse': 0,'url': url,'header': {'User-Agent': ua}}
+            jx, url = 0, ''
+        return {'jx': jx, 'parse': 0, 'url': url, 'header': {'User-Agent': ua}}
+
+    def pic_add_domain(self, videos):
+        try:
+            if not videos: return videos
+            items = videos.get('list', videos) if isinstance(videos, dict) else videos
+            for item in items:
+                if not isinstance(item, dict):  continue
+                vod_pic = item.get('vod_pic')
+                if not vod_pic or vod_pic.startswith('http'): continue
+                host = self.host + '/' if not vod_pic.startswith('/') else self.host
+                item['vod_pic'] = f"{host}{vod_pic}"
+            return videos
+        except Exception:
+            return videos
+
+    def check_rematches(self, features, target):
+        patterns = [p.strip() for p in features.split(',') if p.strip()]
+        for pattern in patterns:
+            try:
+                if re.match(pattern, target):
+                    return True
+            except re.error:
+                pass
+        return False
 
     def keytime(self):
         return str(int(datetime.datetime.now().timestamp()))
@@ -260,7 +307,6 @@ class Spider(Spider):
             key, value = param.split('=', 1)
             if value:
                 params[key] = value
-                print(f"参数: {key}={value}")
         return params
 
     def _generate_signature(self, sorted_params):
