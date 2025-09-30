@@ -13,6 +13,12 @@
       "api": "./plugin/app/美剧侠.py"
     },
     {
+      "key": "LiteApple",
+      "name": "小苹果｜APP",
+      "type": 3,
+      "api": "./plugin/app/LiteApple.py"
+    },
+    {
       "key": "欣欣影视",
       "name": "欣欣影视｜APP",
       "type": 3,
@@ -384,9 +390,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-09-20T01:00:36.238077",
+    "last_sync": "2025-09-30T01:04:12.030591",
     "source_file": "spider.json",
-    "sites_count": 29,
+    "sites_count": 30,
     "sync_script": "sync_sites.py"
   }
 }
