@@ -19,6 +19,12 @@
       "api": "./plugin/app/LiteApple.py"
     },
     {
+      "key": "独播库",
+      "name": "独播库｜APP",
+      "type": 3,
+      "api": "./plugin/app/独播库.py"
+    },
+    {
       "key": "欣欣影视",
       "name": "欣欣影视｜APP",
       "type": 3,
@@ -39,6 +45,12 @@
         "key": "dq6jHm4nG2vY8wQ1",
         "iv": "8A3kPq7xZ9rT28B5"
       }
+    },
+    {
+      "key": "土豆浏览器",
+      "name": "土豆浏览器 | APP",
+      "type": 3,
+      "api": "./plugin/app/土豆浏览器.py"
     },
     {
       "key": "土豆浏览器",
@@ -249,6 +261,19 @@
       }
     },
     {
+      "key": "可可影视",
+      "name": "可可影视｜APP",
+      "type": 3,
+      "api": "./plugin/app/salmon双线.py",
+      "ext": {
+        "appid": "kkdy",
+        "channelid": "c1",
+        "versionName": "3.3.9",
+        "host": "https://vcache.nxcse.cn",
+        "package": "com.kkdyC1V251003.T090030"
+      }
+    },
+    {
       "key": "酷秒至尊2.0",
       "name": "酷秒至尊2.0｜APP",
       "type": 3,
@@ -390,9 +415,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-09-30T01:04:12.030591",
+    "last_sync": "2025-10-26T01:10:08.618858",
     "source_file": "spider.json",
-    "sites_count": 30,
+    "sites_count": 33,
     "sync_script": "sync_sites.py"
   }
 }
