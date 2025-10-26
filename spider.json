@@ -15,6 +15,11 @@
 		"type": 3,
 		"api": "./app/LiteApple.py"
 	}, {
+		"key": "独播库",
+		"name": "独播库｜APP",
+		"type": 3,
+		"api": "./app/独播库.py"
+	}, {
 		"key": "欣欣影视",
 		"name": "欣欣影视｜APP",
 		"type": 3,
@@ -34,6 +39,11 @@
 			"key": "dq6jHm4nG2vY8wQ1",
 			"iv": "8A3kPq7xZ9rT28B5"
 		}
+	}, {
+		"key": "土豆浏览器",
+		"name": "土豆浏览器 | APP",
+		"type": 3,
+		"api": "./app/土豆浏览器.py"
 	}, {
 		"key": "土豆浏览器",
 		"name": "土豆浏览器 | APP",
@@ -220,6 +230,18 @@
 			"api": "http://yjyi.juyongjiu.com/icciu_api.php/v1.vod",
 			"datasignkey": "6QQNUsP3PkD2ajJCPCY8",
 			"apisignkey": "lvdoutv-1.0.0"
+		}
+	}, {
+		"key": "可可影视",
+		"name": "可可影视｜APP",
+		"type": 3,
+		"api": "./app/salmon双线.py",
+		"ext": {
+			"appid": "kkdy",
+			"channelid": "c1",
+			"versionName": "3.3.9",
+			"host": "https://vcache.nxcse.cn",
+			"package": "com.kkdyC1V251003.T090030"
 		}
 	}, {
 		"key": "酷秒至尊2.0",
