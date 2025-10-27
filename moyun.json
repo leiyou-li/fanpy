@@ -304,6 +304,23 @@
       }
     },
     {
+      "key": "247看",
+      "name": "247看 | APP",
+      "type": 3,
+      "api": "./plugin/app/247看.py",
+      "ext": {
+        "parse": {
+          "NBY": [
+            "https://api.nbyjson.top:7788/api/?key=kc4uiyuJnSYO2s91XW&url="
+          ],
+          "ATQP1": [
+            "https://apijx.tufun.top/api/?key=HiCspU6U0zmpjHmZ6r&url="
+          ],
+          "qq": []
+        }
+      }
+    },
+    {
       "key": "锦鲤短剧",
       "name": "锦鲤短剧 | web",
       "type": 3,
@@ -415,9 +432,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-10-26T01:10:08.618858",
+    "last_sync": "2025-10-27T01:11:54.977114",
     "source_file": "spider.json",
-    "sites_count": 33,
+    "sites_count": 34,
     "sync_script": "sync_sites.py"
   }
 }
