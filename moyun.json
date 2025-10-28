@@ -53,10 +53,10 @@
       "api": "./plugin/app/土豆浏览器.py"
     },
     {
-      "key": "土豆浏览器",
-      "name": "土豆浏览器 | APP",
+      "key": "开端｜APP",
+      "name": "开端｜APP",
       "type": 3,
-      "api": "./plugin/app/土豆浏览器.py"
+      "api": "./开端.py"
     },
     {
       "key": "拾光视频",
@@ -432,7 +432,7 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-10-27T01:11:54.977114",
+    "last_sync": "2025-10-28T01:04:28.905287",
     "source_file": "spider.json",
     "sites_count": 34,
     "sync_script": "sync_sites.py"
