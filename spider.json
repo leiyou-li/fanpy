@@ -52,10 +52,16 @@
 			"api": "./app/土豆浏览器.py"
 		},
 		{
+			"key": "K-movie｜APP",
+			"name": "K-movie｜APP",
+			"type": 3,
+			"api": "./app/K-movie.py"
+		},
+		{
 			"key": "开端｜APP",
 			"name": "开端｜APP",
 			"type": 3,
-			"api": "./开端.py"
+			"api": "./app/开端.py"
 		},
 		{
 			"key": "拾光视频",
