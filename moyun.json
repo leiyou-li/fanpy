@@ -53,10 +53,16 @@
       "api": "./plugin/app/土豆浏览器.py"
     },
     {
+      "key": "K-movie｜APP",
+      "name": "K-movie｜APP",
+      "type": 3,
+      "api": "./plugin/app/K-movie.py"
+    },
+    {
       "key": "开端｜APP",
       "name": "开端｜APP",
       "type": 3,
-      "api": "./开端.py"
+      "api": "./plugin/app/开端.py"
     },
     {
       "key": "拾光视频",
@@ -432,9 +438,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-10-28T01:04:28.905287",
+    "last_sync": "2025-10-29T01:09:00.963455",
     "source_file": "spider.json",
-    "sites_count": 34,
+    "sites_count": 35,
     "sync_script": "sync_sites.py"
   }
 }
