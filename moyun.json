@@ -59,6 +59,12 @@
       "api": "./plugin/app/K-movie.py"
     },
     {
+      "key": "新端木视频3.4｜APP",
+      "name": "新端木视频3.4｜APP",
+      "type": 3,
+      "api": "./plugin/app/新端木视频3.4单线.py"
+    },
+    {
       "key": "开端｜APP",
       "name": "开端｜APP",
       "type": 3,
@@ -438,9 +444,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-10-29T01:09:00.963455",
+    "last_sync": "2025-10-30T01:08:43.838587",
     "source_file": "spider.json",
-    "sites_count": 35,
+    "sites_count": 36,
     "sync_script": "sync_sites.py"
   }
 }
