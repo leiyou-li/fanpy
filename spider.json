@@ -58,6 +58,12 @@
 			"api": "./app/K-movie.py"
 		},
 		{
+			"key": "新端木视频3.4｜APP",
+			"name": "新端木视频3.4｜APP",
+			"type": 3,
+			"api": "./app/新端木视频3.4单线.py"
+		},
+		{
 			"key": "开端｜APP",
 			"name": "开端｜APP",
 			"type": 3,
