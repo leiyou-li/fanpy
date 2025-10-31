@@ -53,6 +53,12 @@
       "api": "./plugin/app/土豆浏览器.py"
     },
     {
+      "key": "47电影天堂",
+      "name": "47电影天堂 | APP",
+      "type": 3,
+      "api": "./plugin/app/47电影天堂.py"
+    },
+    {
       "key": "K-movie｜APP",
       "name": "K-movie｜APP",
       "type": 3,
@@ -444,9 +450,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-10-30T01:08:43.838587",
+    "last_sync": "2025-10-31T01:06:44.093258",
     "source_file": "spider.json",
-    "sites_count": 36,
+    "sites_count": 37,
     "sync_script": "sync_sites.py"
   }
 }
