@@ -116,7 +116,7 @@ class Spider(Spider):
         if not url:
             url = raw_url
             if re.search(r'(?:www\.iqiyi|v\.qq|v\.youku|www\.mgtv|www\.bilibili)\.com', video_id):
-                url = 1
+                jx = 1
         return { 'jx': jx, 'parse': 0, 'url': url, 'header': {'User-Agent': 'okhttp/4.11.0','Accept-Encoding': 'gzip'}}
 
     def json2vods(self,arr):
@@ -151,3 +151,4 @@ class Spider(Spider):
 
     def localProxy(self, param):
         pass
+
