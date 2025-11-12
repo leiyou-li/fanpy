@@ -145,13 +145,6 @@
       "ext": "https://ysa.yy-fun.cc/feiapp"
     },
     {
-      "key": "追忆apptov5",
-      "name": "追忆｜App",
-      "type": 3,
-      "api": "./app/ApptoV5无加密.py",
-      "ext": "http://111.173.114.61:8762"
-    },
-    {
       "key": "爱看影视",
       "name": "爱看影视｜APP",
       "type": 3,
@@ -337,12 +330,6 @@
       "name": "锦鲤短剧 | web",
       "type": 3,
       "api": "./web/锦鲤短剧.py"
-    },
-    {
-      "key": "星之阁短剧",
-      "name": "星之阁短剧 | api",
-      "type": 3,
-      "api": "./web/星之阁短剧.py"
     }
   ],
   "spider": "",
