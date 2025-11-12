@@ -112,7 +112,7 @@
       "name": "TVB云播｜APP",
       "type": 3,
       "changeable": 0,
-      "api": "./Appfox.py",
+      "api": "./app/Appfox.py",
       "ext": "http://app.hktvyb.cc"
     },
     {
@@ -120,7 +120,7 @@
       "name": "未来影视｜APP",
       "type": 3,
       "changeable": 0,
-      "api": "./Appfox.py",
+      "api": "./app/Appfox.py",
       "ext": {
         "host": "http://kumiao.yzbao.com.cn",
         "ver": 2
@@ -131,21 +131,10 @@
       "name": "米兔影视 | APP",
       "type": 3,
       "changeable": 0,
-      "api": "./Appfox.py",
+      "api": "./app/Appfox.py",
       "ext": {
         "host": "http://115.190.136.55:1689",
         "cms": "http://d.tv.tkbot.fun/api.php/appfox/vod?ac=videolist",
-        "ver": 2
-      }
-    },
-    {
-      "key": "铂览9",
-      "name": "铂览9 | APP",
-      "type": 3,
-      "changeable": 0,
-      "api": "./Appfox.py",
-      "ext": {
-        "host": "https://fx.bolan9.pro",
         "ver": 2
       }
     },
