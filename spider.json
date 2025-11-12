@@ -47,6 +47,12 @@
       }
     },
     {
+      "key": "看客TV",
+      "name": "看客TV | APP",
+      "type": 3,
+      "api": "./app/看客TV.py"
+    },
+    {
       "key": "土豆浏览器",
       "name": "土豆浏览器 | APP",
       "type": 3,
