@@ -138,8 +138,8 @@
       }
     },
     {
-      "key": "森林动漫New",
-      "name": "森林动漫New｜APP",
+      "key": "森林动漫",
+      "name": "森林动漫｜APP",
       "type": 3,
       "api": "./plugin/app/FeiApp.py",
       "ext": "https://ysa.yy-fun.cc/feiapp"
@@ -279,13 +279,6 @@
       }
     },
     {
-      "key": "酷秒至尊2.0",
-      "name": "酷秒至尊2.0｜APP",
-      "type": 3,
-      "api": "./plugin/app/APPV2.py",
-      "ext": "http://160.202.231.210:7080/ikumiao_api.php/v1.vod"
-    },
-    {
       "key": "享趣视频｜APP",
       "name": "享趣视频 | APP",
       "type": 3,
@@ -294,7 +287,7 @@
         "host": "https://video.xqkk.app",
         "parse": {
           "qq|qiyi|mgtv|youku|bilibili": [
-            "https://api.qljson.xyz/api/?key=67f6a108dc6d84eaf81ac58417c1f72a&url="
+            "https://api.huohua.live/api/?key=8Isa9iRrf6kZhGVCzq&url="
           ],
           "xygz": [
             "https://video.xqkk.app/xygz/jx.php?url="
@@ -321,7 +314,9 @@
           "ATQP1": [
             "https://apijx.tufun.top/api/?key=HiCspU6U0zmpjHmZ6r&url="
           ],
-          "qq": []
+          "qq|qiyi|mgtv|youku|bilibili": [
+            "https://api.huohua.live/api/?key=8Isa9iRrf6kZhGVCzq&url="
+          ]
         }
       }
     },
@@ -431,9 +426,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-11-13T01:08:39.611010",
+    "last_sync": "2025-11-13T14:34:34.628906",
     "source_file": "spider.json",
-    "sites_count": 35,
+    "sites_count": 34,
     "sync_script": "sync_sites.py"
   }
 }
