@@ -314,7 +314,9 @@
           "ATQP1": [
             "https://apijx.tufun.top/api/?key=HiCspU6U0zmpjHmZ6r&url="
           ],
-          "qq": []
+          "qq|qiyi|mgtv|youku|bilibili": [
+            "https://api.huohua.live/api/?key=8Isa9iRrf6kZhGVCzq&url="
+          ]
         }
       }
     },
