@@ -65,7 +65,7 @@ class Spider(Spider):
     def arr2vods(self,arr):
         videos = []
         for i in arr:
-            classify = i.get('classify')
+            classify = i.get('classify',i.get('category',i.get('vodClass')))
             if not(isinstance(classify, str) and any(i in classify for i in self.targets)):
                 videos.append({
                     'vod_id': i.get('url',i.get('vodId',i.get('id'))),
@@ -94,6 +94,8 @@ class Spider(Spider):
             data = raw_data['data']
         else:
             data = raw_data
+        classify = data.get('classify',data.get('category',data.get('vodClass')))
+        if isinstance(classify, str) and any(i in classify for i in self.targets): return None
         urls2 = []
         for i in data.get('episodes',data.get('episodeList',[])):
             if isinstance(i,dict) and 'episode' in i:
@@ -123,7 +125,7 @@ class Spider(Spider):
             'vod_content': data.get('details',data.get('vodContent',data.get('content'))),
             'vod_play_from': '$$$'.join(show),
             'vod_play_url': '$$$'.join(play_urls),
-            'type_name': data.get('classify',data.get('category',data.get('vodClass')))
+            'type_name': classify
         }
         return {'list': [video]}
 
@@ -166,7 +168,6 @@ class Spider(Spider):
         if not self.host: return None
         response = self.fetch(f'{self.host}/user/movie/cms/v1/category?count=20&names={tid}&page={pg}',headers=self.headers, verify=False, timeout=self.timeout).text
         data = json.loads(self.decrypt(response))['datas']
-        print(data,'\n')
         videos = self.arr2vods(data)
         return {'list': videos}
 
