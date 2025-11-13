@@ -3,16 +3,15 @@
 # 严禁将其用于任何商业用途，下载后请于 24 小时内删除，搜索结果均来自源站，本人不承担任何责任。
 
 from base.spider import Spider
-from urllib.parse import urlencode
-import os, sys, time, base64, random, hashlib, urllib3
+import sys,time,base64,secrets,hashlib,urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 sys.path.append('..')
 
 class Spider(Spider):
     headers, host = {
-        'User-Agent': "okhttp/3.12.11",
-        'Connection': "Keep-Alive",
-        'Accept-Encoding': "gzip"
+        'User-Agent': 'okhttp/3.12.11',
+        'Connection': 'Keep-Alive',
+        'Accept-Encoding': 'gzip'
     }, ''
 
     def init(self, extend=''):
@@ -30,59 +29,49 @@ class Spider(Spider):
         data = response['data']
         filters, class_list = {}, []
         for item in data:
-            type_id = item.get("type_id", "")
-            type_name = item.get("type_name", "")
-            if not (type_id == "" and type_name == ""): class_list.append({"type_id": type_id,"type_name": type_name})
-            classes = item.get("classes", [])
-            areas = item.get("areas", [])
-            years = item.get("years", [])
+            type_id = item.get('type_id', '')
+            type_name = item.get('type_name', '')
+            if not (type_id == '' and type_name == ''):
+                class_list.append({'type_id': type_id,'type_name': type_name})
+            classes = item.get('classes', [])
+            areas = item.get('areas', [])
+            years = item.get('years', [])
             filter_items = []
-            class_values = [{"n": "全部", "v": ""}]
+            class_values = [{'n': '全部', 'v': ''}]
             for cls in classes:
                 n_val,v_val = cls,cls
-                if not (n_val == "" and v_val == ""): class_values.append({"n": n_val, "v": v_val})
-            filter_items.append({"key": "class","name": "类型","value": class_values})
-            area_values = [{"n": "全部", "v": ""}]
+                if not (n_val == '' and v_val == ''):
+                    class_values.append({'n': n_val, 'v': v_val})
+            filter_items.append({'key': 'class','name': '类型','value': class_values})
+            area_values = [{'n': '全部', 'v': ''}]
             for area in areas:
                 n_val,v_val = area,area
-                if not (n_val == "" and v_val == ""): area_values.append({"n": n_val, "v": v_val})
-            filter_items.append({"key": "area","name": "地区","value": area_values})
-            year_values = [{"n": "全部", "v": ""}]
+                if not (n_val == '' and v_val == ''): area_values.append({'n': n_val, 'v': v_val})
+            filter_items.append({'key': 'area','name': '地区','value': area_values})
+            year_values = [{'n': '全部', 'v': ''}]
             for year in years:
                 n_val,v_val = year,year
-                if not (n_val == "" and v_val == ""): year_values.append({"n": n_val, "v": v_val})
-            filter_items.append({"key": "year", "name": "年份", "value": year_values  })
-            filter_items.append({"key": "sortby","name": "排序","value": [{"n": "时间", "v": "updatetime"},{"n": "人气", "v": "hits"},{"n": "评分", "v": "score"}]})
-            if type_id != "": filters[type_id] = filter_items
-        return {"class": class_list, "filters": filters}
+                if not (n_val == '' and v_val == ''):
+                    year_values.append({'n': n_val, 'v': v_val})
+            filter_items.append({'key': 'year','name': '年份','value': year_values})
+            filter_items.append({
+                'key': 'sortby','name': '排序',
+                'value': [{'n': '时间', 'v': 'updatetime'},{'n': '人气', 'v': 'hits'},{'n': '评分', 'v': 'score'}]
+            })
+            if type_id != '': filters[type_id] = filter_items
+        return {'class': class_list, 'filters': filters}
 
     def homeVideoContent(self):
         response = self.fetch(f'{self.host}/api.php/v2.main/androidhome', headers=self.headers, verify=False).json()
         data = response['data']
-        def extract_video(i):
-            try:
-                return {
-                    'vod_id': i['id'],
-                    'vod_name': i['name'],
-                    'vod_pic': i['pic'],
-                    'vod_remarks': i['updateInfo'],
-                    'vod_year': i.get('year'),
-                    'vod_content': i.get('content')
-                }
-            except KeyError:
-                return {}
-        videos = []
-        top = data.get('top')
-        if top and isinstance(top, dict):
-            videos.append(extract_video(top))
+        videos = self.arr2vods(data.get('top', []))
         for i in data.get('list', []):
             if isinstance(i, dict):
-                for j in i.get('list', []):
-                    videos.append(extract_video(j))
+                videos.extend(self.arr2vods(i.get('list', [])))
         return {'list': videos}
 
     def categoryContent(self, tid, pg, filter, extend):
-        payload = {
+        params = {
             k: v for k, v in {
                 'page': pg,
                 'type': tid,
@@ -92,33 +81,13 @@ class Spider(Spider):
                 'class': extend.get('class')
             }.items() if v is not None and v != ''
         }
-        response = self.fetch(f"{self.host}/api.php/v2.vod/androidfilter10086?{urlencode(payload)}", headers=self.headers, verify=False).json()
-        videos = []
-        for i in response.get('data', []):
-            if isinstance(i, dict):
-                videos.append({
-                    'vod_id': i['id'],
-                    'vod_name': i['name'],
-                    'vod_pic': i['pic'],
-                    'vod_remarks': i['updateInfo'],
-                    'vod_year': i.get('year'),
-                    'vod_content': i.get('content')
-                })
+        response = self.fetch(f'{self.host}/api.php/v2.vod/androidfilter10086',params=params, headers=self.headers, verify=False).json()
+        videos = self.arr2vods(response.get('data', []))
         return {'list': videos, 'page': pg}
 
     def searchContent(self, key, quick, pg='1'):
         response = self.fetch(f"{self.host}/api.php/v2.vod/androidsearch10086?page=1&wd={key}", headers=self.headers, verify=False).json()
-        videos = []
-        for i in response.get('data', []):
-            if isinstance(i, dict):
-                videos.append({
-                    'vod_id': i['id'],
-                    'vod_name': i['name'],
-                    'vod_pic': i['pic'],
-                    'vod_remarks': i['updateInfo'],
-                    'vod_year': i.get('year'),
-                    'vod_content': i.get('content')
-                })
+        videos = self.arr2vods(response.get('data', []))
         return {'list': videos, 'page': pg}
 
     def detailContent(self, ids):
@@ -126,7 +95,8 @@ class Spider(Spider):
         data = response['data']
         play_urls = []
         for i in data['urls']:
-            play_urls.append(f"{i['key']}${i['url']}")
+            if not(i['key'] == '及时雨' or i['url'] == 'dlNQWVppbnZXVVZsZnRhMnRpTkVNT2JaTnpyS010VEs='):
+                play_urls.append(f"{i['key']}${i['url']}")
         video = {
             'vod_id': data['id'],
             'vod_name': data['name'],
@@ -142,19 +112,16 @@ class Spider(Spider):
         }
         return {'list': [video]}
 
-    def playerContent(self, flag, id, vipflags):
-        parse, url, headers = 0, '', {
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'}
-        if id.startswith("JBN_"):
-            url = "https://www.yangshipin.cn/tv/home?pid=" + id[4:]
-            parse, headers = 1, {
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}
-        elif "HTTP" in id.upper():
-            url = id
+    def playerContent(self, flag, vid, vip_flags):
+        parse, url, headers = 0, '', {'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'}
+        if vid.startswith("JBN_"):
+            url = "https://www.yangshipin.cn/tv/home?pid=" + vid[4:]
+            parse, headers = 1, {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'}
+        elif "HTTP" in vid.upper():
+            url = vid
         else:
-            url = 'http://c.xpgtv.net/m3u8/' + id + '.m3u8'
-            headers = self.headers2()
-            headers['User-Agent'] = 'com.stub.StubApp/1.5.9 (Linux;Android 12) ExoPlayerLib/2.14.2'
+            url = 'http://c.xpgtv.net/m3u8/' + vid + '.m3u8'
+            headers = {**self.headers2(), 'User-Agent': 'com.stub.StubApp/1.6.0 (Linux;Android 12) ExoPlayerLib/2.14.2'}
         return {'jx': 0, 'parse': parse, 'url': url, 'header': headers}
 
     def headers2(self):
@@ -169,7 +136,7 @@ class Spider(Spider):
             token2 = self.encrypt(self.random32())
             self.setCache(token2_cache_key, token2)
         timestamp = str(int(time.time()))
-        version = 'XPGBOX com.phoenix.tv1.5.9'
+        version = 'XPGBOX com.phoenix.tv1.6.0'
         return {
             **self.headers.copy(),
             'token': self.encrypt(token_param),
@@ -207,6 +174,20 @@ class Spider(Spider):
             b_arr3[i8] = b_arr2[i10] ^ data[i8]
         return bytes(b_arr3)
 
+    def arr2vods(self, arr):
+        videos = []
+        if isinstance(arr, list):
+            for i in arr:
+                videos.append({
+                    'vod_id': i['id'],
+                    'vod_name': i['name'],
+                    'vod_pic': i['pic'],
+                    'vod_remarks': i['updateInfo'],
+                    'vod_year': i.get('year'),
+                    'vod_content': i.get('content')
+                })
+        return videos
+
     def encrypt(self, s):
         try:
             byte_data = s.encode('utf-8')
@@ -215,19 +196,16 @@ class Spider(Spider):
         except UnicodeEncodeError:
             return ""
 
-    def hash(self, s):
-        md5 = hashlib.md5()
-        md5.update(s.encode())
-        hash_hex = md5.hexdigest()
-        return hash_hex[8:12]
-
     def random11(self):
-        chars = '0123456789ABCDEF'
-        return ''.join(random.choice(chars) for _ in range(11))
+        return ''.join(secrets.choice('0123456789ABCDEF') for _ in range(11))
 
     def random32(self):
-        random_bytes = os.urandom(32)
+        random_bytes = secrets.token_bytes(32)
         return base64.b64encode(random_bytes).decode('utf-8')
+
+    def hash(self, s):
+        hash_hex = hashlib.md5(s.encode()).hexdigest()
+        return hash_hex[8:12]
 
     def getName(self):
         pass
