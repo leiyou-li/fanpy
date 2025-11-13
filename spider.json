@@ -47,6 +47,12 @@
       }
     },
     {
+      "key": "看客TV",
+      "name": "看客TV | APP",
+      "type": 3,
+      "api": "./app/看客TV.py"
+    },
+    {
       "key": "土豆浏览器",
       "name": "土豆浏览器 | APP",
       "type": 3,
@@ -84,7 +90,6 @@
       "ext": {
         "host": "https://dy.jmzp.net.cn",
         "app_id": "shiguang",
-        "deviceid": "自行使用随机Android_ID.py生成填入即可(16位)",
         "versionCode": "10000",
         "UMENG_CHANNEL": "guan"
       }
@@ -106,7 +111,7 @@
       "name": "TVB云播｜APP",
       "type": 3,
       "changeable": 0,
-      "api": "./Appfox.py",
+      "api": "./app/Appfox.py",
       "ext": "http://app.hktvyb.cc"
     },
     {
@@ -114,7 +119,7 @@
       "name": "未来影视｜APP",
       "type": 3,
       "changeable": 0,
-      "api": "./Appfox.py",
+      "api": "./app/Appfox.py",
       "ext": {
         "host": "http://kumiao.yzbao.com.cn",
         "ver": 2
@@ -125,21 +130,10 @@
       "name": "米兔影视 | APP",
       "type": 3,
       "changeable": 0,
-      "api": "./Appfox.py",
+      "api": "./app/Appfox.py",
       "ext": {
         "host": "http://115.190.136.55:1689",
         "cms": "http://d.tv.tkbot.fun/api.php/appfox/vod?ac=videolist",
-        "ver": 2
-      }
-    },
-    {
-      "key": "铂览9",
-      "name": "铂览9 | APP",
-      "type": 3,
-      "changeable": 0,
-      "api": "./Appfox.py",
-      "ext": {
-        "host": "https://fx.bolan9.pro",
         "ver": 2
       }
     },
@@ -149,13 +143,6 @@
       "type": 3,
       "api": "./app/FeiApp.py",
       "ext": "https://ysa.yy-fun.cc/feiapp"
-    },
-    {
-      "key": "追忆apptov5",
-      "name": "追忆｜App",
-      "type": 3,
-      "api": "./app/ApptoV5无加密.py",
-      "ext": "http://111.173.114.61:8762"
     },
     {
       "key": "爱看影视",
@@ -343,12 +330,6 @@
       "name": "锦鲤短剧 | web",
       "type": 3,
       "api": "./web/锦鲤短剧.py"
-    },
-    {
-      "key": "星之阁短剧",
-      "name": "星之阁短剧 | api",
-      "type": 3,
-      "api": "./web/星之阁短剧.py"
     }
   ],
   "spider": "",
