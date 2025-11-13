@@ -62,21 +62,6 @@ class Spider(Spider):
         videos = self.arr2vods(data)
         return {'list': videos, 'page': pg}
 
-    def arr2vods(self,arr):
-        videos = []
-        for i in arr:
-            classify = i.get('classify',i.get('category',i.get('vodClass')))
-            if not(isinstance(classify, str) and any(i in classify for i in self.targets)):
-                videos.append({
-                    'vod_id': i.get('url',i.get('vodId',i.get('id'))),
-                    'vod_name': i.get('name',i.get('vodName')),
-                    'vod_pic': i.get('pic',i.get('vodPic')),
-                    'vod_remarks': i.get('remarks',i.get('vodRemarks')),
-                    'vod_year': i.get('year',i.get('vodYear')),
-                    'type_name': classify
-                })
-        return videos
-
     def detailContent(self, ids):
         if not self.host: return None
         if str(ids[0]).startswith('http'):
@@ -129,13 +114,12 @@ class Spider(Spider):
         }
         return {'list': [video]}
 
-    def playerContent(self, flag, raw_url, vip_flags):
+    def playerContent(self, flag, url, vip_flags):
         try:
-            url = self.raw_url(raw_url)
-            if url.startswith('https://api.huohua.live/'):
+            if '|' in url:
                 url = self.raw_url(url)
         except Exception:
-            url = raw_url
+            pass
         return { 'jx': 0, 'parse': '0', 'url': url, 'header': {'User-Agent':'ijkplayer/1.0.0 (Linux;Android 11) ExoPlayerLib/2.14.1','Accept-Encoding':'gzip'}}
 
     def decrypt(self,data):
@@ -151,6 +135,21 @@ class Spider(Spider):
         cipher = AES.new(key, AES.MODE_CBC, iv)
         plaintext_bytes = unpad(cipher.decrypt(ciphertext), AES.block_size)
         return plaintext_bytes.decode('utf-8')
+
+    def arr2vods(self,arr):
+        videos = []
+        for i in arr:
+            classify = i.get('classify',i.get('category',i.get('vodClass')))
+            if not(isinstance(classify, str) and any(i in classify for i in self.targets)):
+                videos.append({
+                    'vod_id': i.get('url',i.get('vodId',i.get('id'))),
+                    'vod_name': i.get('name',i.get('vodName')),
+                    'vod_pic': i.get('pic',i.get('vodPic')),
+                    'vod_remarks': i.get('remarks',i.get('vodRemarks')),
+                    'vod_year': i.get('year',i.get('vodYear')),
+                    'type_name': classify
+                })
+        return videos
 
     def raw_url(self,original_url):
         try:
