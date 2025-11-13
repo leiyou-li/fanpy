@@ -62,6 +62,13 @@ class Spider(Spider):
         videos = self.arr2vods(data)
         return {'list': videos, 'page': pg}
 
+    def categoryContent(self, tid, pg, filter, extend):
+        if not self.host: return None
+        response = self.fetch(f'{self.host}/user/movie/cms/v1/category?count=20&names={tid}&page={pg}',headers=self.headers, verify=False, timeout=self.timeout).text
+        data = json.loads(self.decrypt(response))['datas']
+        videos = self.arr2vods(data)
+        return {'list': videos}
+
     def detailContent(self, ids):
         if not self.host: return None
         if str(ids[0]).startswith('http'):
@@ -162,13 +169,6 @@ class Spider(Spider):
             return original_url
         except Exception:
             return original_url
-
-    def categoryContent(self, tid, pg, filter, extend):
-        if not self.host: return None
-        response = self.fetch(f'{self.host}/user/movie/cms/v1/category?count=20&names={tid}&page={pg}',headers=self.headers, verify=False, timeout=self.timeout).text
-        data = json.loads(self.decrypt(response))['datas']
-        videos = self.arr2vods(data)
-        return {'list': videos}
 
     def getName(self):
         pass
