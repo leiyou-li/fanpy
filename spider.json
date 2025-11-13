@@ -279,13 +279,6 @@
       }
     },
     {
-      "key": "酷秒至尊2.0",
-      "name": "酷秒至尊2.0｜APP",
-      "type": 3,
-      "api": "./app/APPV2.py",
-      "ext": "http://160.202.231.210:7080/ikumiao_api.php/v1.vod"
-    },
-    {
       "key": "享趣视频｜APP",
       "name": "享趣视频 | APP",
       "type": 3,
