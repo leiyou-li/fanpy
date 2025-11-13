@@ -287,7 +287,7 @@
         "host": "https://video.xqkk.app",
         "parse": {
           "qq|qiyi|mgtv|youku|bilibili": [
-            "https://api.qljson.xyz/api/?key=67f6a108dc6d84eaf81ac58417c1f72a&url="
+            "https://api.huohua.live/api/?key=8Isa9iRrf6kZhGVCzq&url="
           ],
           "xygz": [
             "https://video.xqkk.app/xygz/jx.php?url="
