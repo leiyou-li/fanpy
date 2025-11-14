@@ -11,7 +11,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 sys.path.append('..')
 
 class Spider(Spider):
-    host,site,path,timeout = '','','',5
+    host,site,path,timeout,targets = '','','',5,{b'\xb1\xa1\xa6\xe2'.decode('big5'),b'\xc2\xd7\xc0\xed'.decode('gbk'),b'\xba\xd6\xa7Q'.decode('big5'),b"\xff\xfe\x0cT'`".decode('utf-16')}
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2; rv:107) Gecko/20100101 Firefox/98',
         'Accept-Encoding': 'gzip',
@@ -37,7 +37,7 @@ class Spider(Spider):
 
     def homeContent(self, filter):
         if not self.host: return None
-        return {'class': [{'type_id': '电影', 'type_name': '电影'}, {'type_id': '连续剧', 'type_name': '连续剧'}, {'type_id': '动漫', 'type_name': '动漫'}, {'type_id': '短剧', 'type_name': '短剧'}, {'type_id': '纪录片', 'type_name': '纪录片'}]}
+        return {'class': [{'type_id': '电影', 'type_name': '电影'}, {'type_id': '连续剧', 'type_name': '连续剧'}, {'type_id': 1, 'type_name': '动漫'}, {'type_id': 4, 'type_name': '短剧'}, {'type_id': '纪录片', 'type_name': '纪录片'}]}
 
     def homeVideoContent(self):
         return self.categoryContent('电影,连续剧,动漫,短剧,纪录片',1,False,{})
@@ -59,16 +59,15 @@ class Spider(Spider):
             data = response.get('datas',response.get('data'))
         else:
             data = response
-        videos = []
-        for i in data:
-            videos.append({
-                'vod_id': i.get('url',i.get('vodId',i.get('id'))),
-                'vod_name': i.get('name',i.get('vodName')),
-                'vod_pic': i.get('pic',i.get('vodPic')),
-                'vod_remarks': i.get('remarks',i.get('vodRemarks')),
-                'vod_year': i.get('year',i.get('vodYear'))
-            })
+        videos = self.arr2vods(data)
         return {'list': videos, 'page': pg}
+
+    def categoryContent(self, tid, pg, filter, extend):
+        if not self.host: return None
+        response = self.fetch(f'{self.host}/user/movie/cms/v1/category?count=20&names={tid}&page={pg}',headers=self.headers, verify=False, timeout=self.timeout).text
+        data = json.loads(self.decrypt(response))['datas']
+        videos = self.arr2vods(data)
+        return {'list': videos}
 
     def detailContent(self, ids):
         if not self.host: return None
@@ -87,6 +86,8 @@ class Spider(Spider):
             data = raw_data['data']
         else:
             data = raw_data
+        classify = data.get('classify',data.get('category',data.get('vodClass')))
+        if isinstance(classify, str) and any(i in classify for i in self.targets): return None
         urls2 = []
         for i in data.get('episodes',data.get('episodeList',[])):
             if isinstance(i,dict) and 'episode' in i:
@@ -116,17 +117,16 @@ class Spider(Spider):
             'vod_content': data.get('details',data.get('vodContent',data.get('content'))),
             'vod_play_from': '$$$'.join(show),
             'vod_play_url': '$$$'.join(play_urls),
-            'type_name': data.get('classify',data.get('category',data.get('vodClass')))
+            'type_name': classify
         }
         return {'list': [video]}
 
-    def playerContent(self, flag, raw_url, vip_flags):
+    def playerContent(self, flag, url, vip_flags):
         try:
-            url = self.raw_url(raw_url)
-            if url.startswith('https://api.huohua.live/'):
+            if '|' in url:
                 url = self.raw_url(url)
         except Exception:
-            url = raw_url
+            pass
         return { 'jx': 0, 'parse': '0', 'url': url, 'header': {'User-Agent':'ijkplayer/1.0.0 (Linux;Android 11) ExoPlayerLib/2.14.1','Accept-Encoding':'gzip'}}
 
     def decrypt(self,data):
@@ -143,6 +143,21 @@ class Spider(Spider):
         plaintext_bytes = unpad(cipher.decrypt(ciphertext), AES.block_size)
         return plaintext_bytes.decode('utf-8')
 
+    def arr2vods(self,arr):
+        videos = []
+        for i in arr:
+            classify = i.get('classify',i.get('category',i.get('vodClass')))
+            if not(isinstance(classify, str) and any(i in classify for i in self.targets)):
+                videos.append({
+                    'vod_id': i.get('url',i.get('vodId',i.get('id'))),
+                    'vod_name': i.get('name',i.get('vodName')),
+                    'vod_pic': i.get('pic',i.get('vodPic')),
+                    'vod_remarks': i.get('remarks',i.get('vodRemarks')),
+                    'vod_year': i.get('year',i.get('vodYear')),
+                    'type_name': classify
+                })
+        return videos
+
     def raw_url(self,original_url):
         try:
             response = self.fetch(original_url,allow_redirects=False,stream=True,timeout=20)
@@ -154,20 +169,6 @@ class Spider(Spider):
             return original_url
         except Exception:
             return original_url
-
-    def categoryContent(self, tid, pg, filter, extend):
-        if not self.host: return None
-        response = self.fetch(f'{self.host}/user/movie/cms/v1/category?count=20&names={tid}&page={pg}',headers=self.headers, verify=False, timeout=self.timeout).text
-        data = json.loads(self.decrypt(response))['datas']
-        videos = []
-        for i in data:
-            videos.append({
-                'vod_id': i['id'],
-                'vod_name': i['name'],
-                'vod_pic': i['pic'],
-                'vod_remarks': i['remarks']
-            })
-        return {'list': videos}
 
     def getName(self):
         pass
@@ -183,4 +184,3 @@ class Spider(Spider):
 
     def localProxy(self, param):
         pass
-
