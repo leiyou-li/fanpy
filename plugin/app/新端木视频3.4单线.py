@@ -8,14 +8,14 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 sys.path.append('..')
 
 class Spider(Spider):
-    headers,host,player = {
+    headers,host,player,tares = {
         'User-Agent': "okhttp/3.10.0",
         'Connection': "Keep-Alive",
         'Accept-Encoding': "gzip"
-    }, 'http://154.219.117.219:8080',{}
+    }, 'http://154.219.117.219:8080',{},{b'\xad\xdb\xb2z'.decode('big5'),b"\xff\xfe\x0cT'`".decode('utf-16'),b'\xb1\xa1\xa6\xe2'.decode('big5'),b'\xc2\xd7\xc0\xed'.decode('gbk'),b'\xba\xd6\xa7Q'.decode('big5'),b'\xc0\xed\xc2\xdb'.decode('gbk')}
 
     def homeContent(self, filter):
-        return {'class': [{'type_id': 1, 'type_name': '电影'}, {'type_id': 2, 'type_name': '电视剧'}, {'type_id': 4, 'type_name': '动漫'}, {'type_id': 3, 'type_name': '综艺'}, {'type_id': 22, 'type_name': '纪录片'}, {'type_id': 24, 'type_name': '少儿'}, {'type_id': 26, 'type_name': '短剧'}]}
+        return {'class':[{'type_id': 1,'type_name':'电影'},{'type_id': 2,'type_name':'电视剧'},{'type_id': 4,'type_name':'动漫'},{'type_id': 3,'type_name':'综艺'},{'type_id': 22,'type_name':'纪录片'},{'type_id': 24,'type_name':'少儿'},{'type_id': 26,'type_name':'短剧'}]}
 
     def homeVideoContent(self):
         response = self.fetch(f'{self.host}/dev_webvip/v4/app/homeListNew?type=0', headers=self.headers, verify=False).json()
@@ -23,17 +23,17 @@ class Spider(Spider):
         videos = []
         for i in data:
             if isinstance(i,dict) and 'dataInfoList' in i:
-                videos.extend(self.json2vods(i['dataInfoList']))
+                videos.extend(self.arr2vods(i['dataInfoList']))
         return {'list': videos}
 
     def categoryContent(self, tid, pg, filter, extend):
         response = self.fetch(f'{self.host}/dev_webvip/v2/app/getVideoList?pageSize=12&currentPage={pg}&type={tid}', headers=self.headers, verify=False).json()
         data = response['data']
-        return {'list': self.json2vods(data['list']),'pagecount': data['pages'], 'page': pg}
+        return {'list': self.arr2vods(data['list']), 'pagecount': data['pages'], 'page': pg}
 
     def searchContent(self, key, quick, pg='1'):
         response = self.post(f'{self.host}/dev_webvip/v2/app/getVideoListType', data={'name':key}, headers=self.headers, verify=False).json()
-        return {'list': self.json2vods(response['data']), 'page': pg}
+        return {'list': self.arr2vods(response['data']), 'page': pg}
 
     def detailContent(self, ids):
         vid, detail = ids[0].split('@',1)
@@ -84,32 +84,35 @@ class Spider(Spider):
                 jx, url = 1, raw_url
         return { 'jx': jx, 'parse': 0, 'url': url, 'header': {'User-Agent': play_ua}}
 
-    def json2vods(self,arr):
+    def arr2vods(self, arr):
         videos = []
         if isinstance(arr,list):
             for i in arr:
-                remake = ''
-                vRemake = json.loads(i['vRemake'])
-                for j in vRemake:
-                    if j['remake']:
-                        remake = j['remake']
-                detail = json.dumps({
-                    'vod_pic': i['vPic'],
-                    'vod_remarks': remake,
-                    'vod_year': i['vYear'],
-                    'vod_area': i['vArea'],
-                    'vod_actor': i['vActor'],
-                    'vod_director': i['vWriter'],
-                    'vod_content': i['vContent'],
-                    'type_name': i['vClass']
-                },ensure_ascii=False, separators=(',', ':'))
-                videos.append({
-                    'vod_id': f"{i.get('vDetailId',i.get('id'))}@{detail}",
-                    'vod_name': i['vName'],
-                    'vod_pic': i['vPic'],
-                    'vod_remarks': remake,
-                    'vod_content': i.get('vBlurb',i.get('vContent'))
-                })
+                tag2,remake = i.get('vTest2'),''
+                type_name = f"{i['vClass']},{tag2}" if tag2 else i['vClass']
+                if i.get('vTag') and isinstance(i.get('vTag'), str) and any(k in i.get('vTag') for k in self.tares): continue
+                if i.get('vTest1') and isinstance(i.get('vTest1'), str) and any(n in i.get('vTest1') for n in self.tares): continue
+                if not(type_name and isinstance(type_name, str) and any(l in type_name for l in self.tares)):
+                    vRemake = json.loads(i['vRemake'])
+                    for j in vRemake:
+                        if j['remake']: remake = j['remake']
+                    detail = json.dumps({
+                        'vod_pic': i['vPic'],
+                        'vod_remarks': remake,
+                        'vod_year': i['vYear'],
+                        'vod_area': i['vArea'],
+                        'vod_actor': i['vActor'],
+                        'vod_director': i['vWriter'],
+                        'vod_content': i['vContent'],
+                        'type_name': type_name
+                    },ensure_ascii=False, separators=(',', ':'))
+                    videos.append({
+                        'vod_id': f"{i.get('vDetailId',i.get('id'))}@{detail}",
+                        'vod_name': i['vName'],
+                        'vod_pic': i['vPic'],
+                        'vod_remarks': remake,
+                        'vod_content': i.get('vBlurb',i.get('vContent'))
+                    })
         return videos
 
     def init(self, extend=""):

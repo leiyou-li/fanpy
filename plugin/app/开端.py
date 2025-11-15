@@ -37,10 +37,17 @@ class Spider(Spider):
 
     def homeContent(self, filter):
         if not self.host: return None
-        return {'class': [{'type_id': '电影', 'type_name': '电影'}, {'type_id': '连续剧', 'type_name': '连续剧'}, {'type_id': 1, 'type_name': '动漫'}, {'type_id': 4, 'type_name': '短剧'}, {'type_id': '纪录片', 'type_name': '纪录片'}]}
+        return {'class':[{'type_id':'电影','type_name':'电影'},{'type_id':'连续剧','type_name':'连续剧'},{'type_id':'动漫','type_name':'动漫'},{'type_id':'短剧','type_name':'短剧'},{'type_id':'综艺','type_name':'综艺'},{'type_id':'纪录片','type_name':'纪录片'}]}
 
     def homeVideoContent(self):
-        return self.categoryContent('电影,连续剧,动漫,短剧,纪录片',1,False,{})
+        return self.categoryContent('电影,连续剧,动漫,短剧,综艺,纪录片',1,False,{})
+
+    def categoryContent(self, tid, pg, filter, extend):
+        if not self.host: return None
+        response = self.fetch(f'{self.host}/user/movie/cms/v1/category?count=20&names={tid}&page={pg}',headers=self.headers, verify=False, timeout=self.timeout).text
+        data = json.loads(self.decrypt(response))['datas']
+        videos = self.arr2vods(data)
+        return {'list': videos}
 
     def searchContent(self, key, quick, pg='1'):
         if not self.host or str(pg) != '1': return None
@@ -61,13 +68,6 @@ class Spider(Spider):
             data = response
         videos = self.arr2vods(data)
         return {'list': videos, 'page': pg}
-
-    def categoryContent(self, tid, pg, filter, extend):
-        if not self.host: return None
-        response = self.fetch(f'{self.host}/user/movie/cms/v1/category?count=20&names={tid}&page={pg}',headers=self.headers, verify=False, timeout=self.timeout).text
-        data = json.loads(self.decrypt(response))['datas']
-        videos = self.arr2vods(data)
-        return {'list': videos}
 
     def detailContent(self, ids):
         if not self.host: return None
@@ -123,8 +123,7 @@ class Spider(Spider):
 
     def playerContent(self, flag, url, vip_flags):
         try:
-            if '|' in url:
-                url = self.raw_url(url)
+            if '|' in url: url = self.raw_url(url)
         except Exception:
             pass
         return { 'jx': 0, 'parse': '0', 'url': url, 'header': {'User-Agent':'ijkplayer/1.0.0 (Linux;Android 11) ExoPlayerLib/2.14.1','Accept-Encoding':'gzip'}}
