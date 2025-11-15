@@ -145,28 +145,6 @@
       "ext": "https://ysa.yy-fun.cc/feiapp"
     },
     {
-      "key": "爱看影视",
-      "name": "爱看影视｜APP",
-      "type": 3,
-      "api": "./app/AppMuou.py",
-      "ext": {
-        "host": "http://ak.tpmbt.cn",
-        "name": "爱看影视",
-        "version": "4.2.0"
-      }
-    },
-    {
-      "key": "23影视",
-      "name": "23影视｜APP",
-      "type": 3,
-      "api": "./app/AppMuou.py",
-      "ext": {
-        "host": "https://123ysw.com",
-        "name": "23影视",
-        "version": "4.2.0"
-      }
-    },
-    {
       "key": "火猫影视",
       "name": "火猫影视｜APP",
       "type": 3,
