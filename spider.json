@@ -150,19 +150,8 @@
       "type": 3,
       "api": "./app/AppMuou.py",
       "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/2261518485.txt",
+        "host": "http://ak.tpmbt.cn",
         "name": "爱看影视",
-        "version": "4.2.0"
-      }
-    },
-    {
-      "key": "金牌影院",
-      "name": "金牌影院｜APP",
-      "type": 3,
-      "api": "./app/AppMuou.py",
-      "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/godbbq.txt",
-        "name": "金牌影院（请断网再安装）",
         "version": "4.2.0"
       }
     },
@@ -172,7 +161,7 @@
       "type": 3,
       "api": "./app/AppMuou.py",
       "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/764119293.txt",
+        "host": "https://123ysw.com",
         "name": "23影视",
         "version": "4.2.0"
       }
@@ -183,7 +172,7 @@
       "type": 3,
       "api": "./app/AppMuou.py",
       "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/3929393553.txt",
+        "host": "http://app.789dd.cn",
         "name": "火猫影视",
         "version": "4.2.0"
       }
