@@ -200,17 +200,6 @@
       }
     },
     {
-      "key": "不知名影视",
-      "name": "不知名影视｜APP",
-      "type": 3,
-      "api": "./app/skapp.py",
-      "ext": {
-        "host": "http://156.226.178.60:8762/skkkkk.txt",
-        "key": "ygcnbclnqzsmebxd",
-        "iv": "8249692684143708"
-      }
-    },
-    {
       "key": "月亮影视",
       "name": "月亮影视｜APP",
       "type": 3,
