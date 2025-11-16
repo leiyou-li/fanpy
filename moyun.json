@@ -145,45 +145,12 @@
       "ext": "https://ysa.yy-fun.cc/feiapp"
     },
     {
-      "key": "爱看影视",
-      "name": "爱看影视｜APP",
-      "type": 3,
-      "api": "./plugin/app/AppMuou.py",
-      "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/2261518485.txt",
-        "name": "爱看影视",
-        "version": "4.2.0"
-      }
-    },
-    {
-      "key": "金牌影院",
-      "name": "金牌影院｜APP",
-      "type": 3,
-      "api": "./plugin/app/AppMuou.py",
-      "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/godbbq.txt",
-        "name": "金牌影院（请断网再安装）",
-        "version": "4.2.0"
-      }
-    },
-    {
-      "key": "23影视",
-      "name": "23影视｜APP",
-      "type": 3,
-      "api": "./plugin/app/AppMuou.py",
-      "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/764119293.txt",
-        "name": "23影视",
-        "version": "4.2.0"
-      }
-    },
-    {
       "key": "火猫影视",
       "name": "火猫影视｜APP",
       "type": 3,
       "api": "./plugin/app/AppMuou.py",
       "ext": {
-        "host": "https://muouapp.oss-cn-hangzhou.aliyuncs.com/MUOUAPP/3929393553.txt",
+        "host": "http://app.789dd.cn",
         "name": "火猫影视",
         "version": "4.2.0"
       }
@@ -197,17 +164,6 @@
         "host": "https://silisili-1251358327.cos.ap-shanghai.myqcloud.com/skapp/api.txt",
         "key": "ygcnbcznazmyrbdn",
         "iv": "6571230062143708"
-      }
-    },
-    {
-      "key": "不知名影视",
-      "name": "不知名影视｜APP",
-      "type": 3,
-      "api": "./plugin/app/skapp.py",
-      "ext": {
-        "host": "http://156.226.178.60:8762/skkkkk.txt",
-        "key": "ygcnbclnqzsmebxd",
-        "iv": "8249692684143708"
       }
     },
     {
@@ -274,7 +230,7 @@
         "appid": "kkdy",
         "channelid": "c1",
         "versionName": "3.3.9",
-        "host": "https://vcache.nxcse.cn",
+        "host": "https://vcache.ntymkab.com",
         "package": "com.kkdyC1V251003.T090030"
       }
     },
@@ -426,9 +382,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-11-13T14:34:34.628906",
+    "last_sync": "2025-11-16T01:12:45.229141",
     "source_file": "spider.json",
-    "sites_count": 34,
+    "sites_count": 30,
     "sync_script": "sync_sites.py"
   }
 }
