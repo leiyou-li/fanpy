@@ -309,6 +309,18 @@
       "name": "锦鲤短剧 | web",
       "type": 3,
       "api": "./plugin/web/锦鲤短剧.py"
+    },
+    {
+      "key": "麻雀视频",
+      "name": "麻雀视频 | web",
+      "type": 3,
+      "api": "./plugin/web/麻雀视频.py"
+    },
+    {
+      "key": "山有木兮",
+      "name": "山有木兮 | web",
+      "type": 3,
+      "api": "./plugin/web/山有木兮.py"
     }
   ],
   "parses": [
@@ -410,9 +422,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-12-07T01:16:47.124558",
+    "last_sync": "2025-12-09T01:09:56.808000",
     "source_file": "spider.json",
-    "sites_count": 34,
+    "sites_count": 36,
     "sync_script": "sync_sites.py"
   }
 }
