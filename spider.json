@@ -308,6 +308,17 @@
 			"name": "锦鲤短剧 | web",
 			"type": 3,
 			"api": "./web/锦鲤短剧.py"
+		}, {
+			"key": "麻雀视频",
+			"name": "麻雀视频 | web",
+			"type": 3,
+			"api": "./web/麻雀视频.py"
+		},
+		{
+			"key": "山有木兮",
+			"name": "山有木兮 | web",
+			"type": 3,
+			"api": "./web/山有木兮.py"
 		}
 	],
 	"spider": "",
