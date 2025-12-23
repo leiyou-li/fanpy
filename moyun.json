@@ -148,10 +148,7 @@
       "type": 3,
       "changeable": 0,
       "api": "./plugin/app/Appfox.py",
-      "ext": {
-        "host": "http://kumiao.yzbao.com.cn",
-        "ver": 2
-      }
+      "ext": "http://kumiao.yzbao.com.cn"
     },
     {
       "key": "米兔影视",
@@ -161,8 +158,7 @@
       "api": "./plugin/app/Appfox.py",
       "ext": {
         "host": "http://115.190.136.55:1689",
-        "cms": "http://d.tv.tkbot.fun/api.php/appfox/vod?ac=videolist",
-        "ver": 2
+        "cms": "http://d.tv.tkbot.fun/api.php/appfox/vod?ac=videolist"
       }
     },
     {
@@ -422,7 +418,7 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-12-09T01:09:56.808000",
+    "last_sync": "2025-12-23T01:12:21.074606",
     "source_file": "spider.json",
     "sites_count": 36,
     "sync_script": "sync_sites.py"
