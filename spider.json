@@ -147,10 +147,7 @@
 			"type": 3,
 			"changeable": 0,
 			"api": "./app/Appfox.py",
-			"ext": {
-				"host": "http://kumiao.yzbao.com.cn",
-				"ver": 2
-			}
+			"ext": "http://kumiao.yzbao.com.cn"
 		},
 		{
 			"key": "米兔影视",
@@ -160,8 +157,7 @@
 			"api": "./app/Appfox.py",
 			"ext": {
 				"host": "http://115.190.136.55:1689",
-				"cms": "http://d.tv.tkbot.fun/api.php/appfox/vod?ac=videolist",
-				"ver": 2
+				"cms": "http://d.tv.tkbot.fun/api.php/appfox/vod?ac=videolist"
 			}
 		},
 		{
