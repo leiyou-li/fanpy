@@ -158,6 +158,7 @@ class Spider(Spider):
         data = res.get('data', {})
         show, play_urls = [], []
         if 'vodSources' in data:
+            data['vodSources'].sort(key=lambda x: x.get('sort', 0))
             for i in data['vodSources']:
                 urls = []
                 if 'vodPlayList' in i and 'urls' in i['vodPlayList']:
@@ -165,7 +166,6 @@ class Spider(Spider):
                         urls.append(f"{j['name']}${i['sourceCode']}@{j['url']}")
                 play_urls.append('#'.join(urls))
                 show.append(i['sourceName'])
-
         video = {
             'vod_id': data['vodId'],
             'vod_name': data['vodName'],
