@@ -6,6 +6,7 @@ from Crypto.Cipher import AES
 from base.spider import Spider
 from Crypto.Util.Padding import unpad
 import re,sys,time,json,urllib3,hashlib,binascii
+from concurrent.futures import ThreadPoolExecutor, as_completed
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 sys.path.append('..')
 
@@ -19,12 +20,77 @@ class Spider(Spider):
     def homeContent(self, filter):
         if not self.host: return None
         payload = self.payload('App.Vod.Main_type')
-        response = self.post(self.host, data=payload, headers=self.headers, verify=False).json()
-        classes = []
-        for i in response['data']:
-            if isinstance(i,dict):
-                classes.append({'type_id': i['list_id'], 'type_name': i['list_name']})
-        return {'class': classes}
+        try:
+            response = self.post(self.host, data=payload, headers=self.headers, verify=False).json()
+            classes = []
+            for i in response.get('data', []):
+                if isinstance(i, dict):
+                    classes.append({'type_id': i['list_id'], 'type_name': i['list_name']})
+        except Exception:
+            classes = []
+        filters = {}
+        def fetch_filter(tid):
+            try:
+                f_payload = self.payload({
+                    'service': "App.Vod.Videos",
+                    'list_id': tid,
+                    'type': "全部",
+                    'year': "全部",
+                    'area': "全部",
+                    'language': "全部",
+                    'order': "time",
+                    'page': "1",
+                    'perpage': "24",
+                })
+                res = self.post(self.host, data=f_payload, headers=self.headers, verify=False).json()
+                decrypted_data = self.decrypt(res['data'])
+                data_items = json.loads(decrypted_data)
+                type_filters = []
+                if isinstance(data_items, list):
+                    for item in data_items:
+                        if isinstance(item, dict) and item.get('type') == 'filter':
+                            name = ''
+                            tf = item.get('type_filter')
+                            if tf == 'type_expansion':
+                                key, name = 'type', '类型'
+                            elif tf == 'class':
+                                key, name = 'type', '类型'
+                            elif tf == 'area':
+                                key, name = 'area', '地区'
+                            elif tf == 'year':
+                                key, name = 'year', '年份'
+                            elif tf == 'language':
+                                key, name = 'language', '语言'
+                            elif tf == 'letter':
+                                key, name = 'letter', '字母'
+                            elif tf == 'order':
+                                key, name = 'order', '排序'
+                            elif tf == 'type':
+                                key = ''
+                            else:
+                                key, name = tf, tf
+                            if key and item.get('filters'):
+                                values = []
+                                for opt in item['filters']:
+                                    v = opt.get('order') if key == 'order' and 'order' in opt else opt.get('title')
+                                    n = opt.get('title')
+                                    values.append({'n': n, 'v': v})
+                                init_value = values[0]['v'] if values else ''
+                                type_filters.append({'key': key, 'name': name, 'value': values, 'init': init_value})
+                return str(tid), type_filters
+            except Exception:
+                return str(tid), []
+        if classes:
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                futures = {executor.submit(fetch_filter, cls['type_id']): cls for cls in classes}
+                for future in as_completed(futures):
+                    try:
+                        tid_str, t_filters = future.result()
+                        if t_filters:
+                            filters[tid_str] = t_filters
+                    except Exception:
+                        pass
+        return {'class': classes, 'filters': filters}
 
     def homeVideoContent(self):
         payload = self.payload('App.Vod.HomeVideos')
@@ -34,17 +100,20 @@ class Spider(Spider):
         return {'list': videos}
 
     def categoryContent(self, tid, pg, filter, extend):
-        payload = self.payload({
-            'service': "App.Vod.Videos",
+        params = {
+            'service': 'App.Vod.Videos',
             'list_id': tid,
-            'type': "全部",
-            'year': "全部",
-            'area': "全部",
-            'language': "全部",
-            'order': "time",
-            'page': pg,
-            'perpage': "24",
-        })
+            'type': '全部',
+            'year': '全部',
+            'area': '全部',
+            'language': '全部',
+            'order': 'time',
+            'page': str(pg),
+            'perpage': '24',
+        }
+        if extend:
+            params.update(extend)
+        payload = self.payload(params)
         response = self.post(self.host, data=payload, headers=self.headers, verify=False).json()
         data = self.decrypt(response['data'])
         videos = self.videos(data)
@@ -122,7 +191,7 @@ class Spider(Spider):
 
     def payload(self, data):
         timestamp = int(time.time() * 1000)
-        md5 = self.md5(8 * timestamp - 12)
+        md5 = self.md5(str(8 * timestamp - 12))
         if isinstance(data, dict):
             sign_data = self.md5(f"Api_FeiFeiCms{data['service']}{self.versionCode}{timestamp}{md5}")
             data.update({
@@ -173,7 +242,6 @@ class Spider(Spider):
 
     def md5(self, data):
         md5_hash = hashlib.md5()
-        if isinstance(data, int): data = str(data)
         md5_hash.update(data.encode('utf-8'))
         return md5_hash.hexdigest()
 
