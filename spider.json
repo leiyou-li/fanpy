@@ -12,6 +12,18 @@
 			"api": "./app/美剧侠.py"
 		},
 		{
+            "key": "咕噜映画",
+            "name": "咕噜映画｜APP",
+            "type": 3,
+            "changeable": 0,
+            "api": "./app/Appfox.py",
+            "ext": {
+                "host": "http://www.yingsw.top",
+                "timeout": 8,
+                "ver": 3
+            }
+		},
+		{
 			"key": "LiteApple",
 			"name": "小苹果｜APP",
 			"type": 3,
