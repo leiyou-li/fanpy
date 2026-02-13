@@ -13,6 +13,18 @@
       "api": "./plugin/app/美剧侠.py"
     },
     {
+      "key": "咕噜映画",
+      "name": "咕噜映画｜APP",
+      "type": 3,
+      "changeable": 0,
+      "api": "./plugin/app/Appfox.py",
+      "ext": {
+        "host": "http://www.yingsw.top",
+        "timeout": 8,
+        "ver": 3
+      }
+    },
+    {
       "key": "LiteApple",
       "name": "小苹果｜APP",
       "type": 3,
@@ -418,9 +430,9 @@
     }
   ],
   "sync_info": {
-    "last_sync": "2025-12-23T01:12:21.074606",
+    "last_sync": "2026-02-13T16:39:20.832511",
     "source_file": "spider.json",
-    "sites_count": 36,
+    "sites_count": 37,
     "sync_script": "sync_sites.py"
   }
 }
